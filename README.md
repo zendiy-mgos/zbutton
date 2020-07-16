@@ -35,13 +35,13 @@ Button events. They can be classified in 2 different categories:
 
 |Event|Type||
 |--|--|--|
-|MGOS_EV_ZBUTTON_DOWN|LISTENING|Send this event to the button instance when the phisical button of your devide is pushed down.|
-|MGOS_EV_ZBUTTON_UP|LISTENING|Send this event to the button instance when the phisical button of your devide is released.|
+|MGOS_EV_ZBUTTON_DOWN|LISTENING|Send this event to the button instance when the phisical button of your device is pushed down.|
+|MGOS_EV_ZBUTTON_UP|LISTENING|Send this event to the button instance when the phisical button of your device is released.|
 |MGOS_EV_ZBUTTON_ON_CLICK|PUBLISHING|Published when the button is clicked (single-click).|
-|MGOS_EV_ZBUTTON_ON_DBLCLICK|PUBLISHING|Published when the button is bouble-clicked.|
+|MGOS_EV_ZBUTTON_ON_DBLCLICK|PUBLISHING|Published when the button is double-clicked.|
 |MGOS_EV_ZBUTTON_ON_PRESS|PUBLISHING|Published when the button is pressed (long-press).|
 
-**Example 1** - Connect a gpio-based push button to the button instance.
+**Example 1** - A push-button on pin 14 sends its state to the button instance.
 ```c
 void mg_zbutton_gpio_button_handler_cb(int pin, void *arg) {
   struct mgos_zbutton *handle = (struct mgos_zbutton *)arg;
@@ -51,6 +51,7 @@ void mg_zbutton_gpio_button_handler_cb(int pin, void *arg) {
 }
 
 struct mgos_zbutton *btn = mgos_zbutton_create("btn-1", NULL);
+// Set the push-button handler
 mgos_gpio_set_button_handler(14, MGOS_GPIO_PULL_UP, MGOS_GPIO_INT_EDGE_ANY,
   50, mg_zbutton_gpio_button_handler_cb, btn);
 ```
@@ -211,15 +212,16 @@ Button events. They can be classified in 2 different categories:
 
 |Event|Type||
 |--|--|--|
-|EV_ZBUTTON_DOWN|LISTENING|Send this event to the button instance when the phisical button of your devide is pushed down.|
-|EV_ZBUTTON_UP|LISTENING|Send this event to the button instance when the phisical button of your devide is released.|
+|EV_ZBUTTON_DOWN|LISTENING|Send this event to the button instance when the phisical button of your device is pushed down.|
+|EV_ZBUTTON_UP|LISTENING|Send this event to the button instance when the phisical button of your device is released.|
 |EV_ON_CLICK|PUBLISHING|Published when the button is clicked (single-click).|
-|EV_ON_DBLCLICK|PUBLISHING|Published when the button is bouble-clicked.|
+|EV_ON_DBLCLICK|PUBLISHING|Published when the button is double-clicked.|
 |EV_ON_PRESS|PUBLISHING|Published when the button is pressed (long-press).|
 
-**Example 1** - Connect a gpio-based push button to the button instance.
+**Example 1** - A push-button on pin 14 sends its state to the button instance.
 ```js
 let btn1 = ZenButton.create('btn-1');
+// Set the push-button handler
 GPIO.set_button_handler(14, GPIO.PULL_UP, GPIO.INT_EDGE_ANY, 50,
 function(pin, btn) {
   let gpioVal = GPIO.read(pin);
