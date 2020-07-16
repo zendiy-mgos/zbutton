@@ -33,7 +33,7 @@ Button handle. You can get a valid handle using `gos_zbutton_create()`.
 |id|Handle unique ID.|
 |type|Handle type. Fixed value: `MGOS_ZTHING_BUTTON`.|
 
-**Example** - Use handle fields.
+**Example** - Use of handle fields.
 ```c
 struct mgos_zbutton *handle = mgos_zbutton_create("btn-1", NULL);
 LOG(LL_INFO, ("ID '%s' detected.", handle->id));
@@ -60,15 +60,15 @@ struct mgos_zbutton_cfg {
   int press_timeout;
 };
 ```
-Button configuration values for `gos_zbutton_create()`.
+Button configuration values (e.g.: used by  `gos_zbutton_create()`).
 
 |Field||
 |--|--|
 |click_ticks|Single click duration, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_CLICK_TICKS` to use the default 140ms duration.|
-|dblclick_delay_ticks|The delay between the two double-click clicks, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_DBLCLICK_DELAY_TICKS` to use the default 160ms delay.|
-|press_ticks|Press duration, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TICKS ` to use the default 1.5s duration.|
-|press_repeat_ticks|Interval in milliseconds, for raising multiple `MGOS_EV_ZBUTTON_ON_PRESS` events, subsequent to the first one. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TICKS ` to use the default 1.5 secs. interval. Set to `0` to disable events.|
-|press_timeout|Maximum time, in milliseconds, the button can stay pressed. When the timeout expires, the button is reset. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TIMEOUT ` to use the default 15 secs. timeout. Set to `0` to disable the timeout.|
+|dblclick_delay_ticks|The delay between the two double-click clicks, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_DBLCLICK_DELAY_TICKS` to use the default delay (160ms).|
+|press_ticks|Press duration, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TICKS ` to use the default duration (1.5s).|
+|press_repeat_ticks|Interval in milliseconds, for raising multiple `MGOS_EV_ZBUTTON_ON_PRESS` events, subsequent to the first one. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TICKS` to use the default interval (1.5s). Set to `0` to disable event repetition.|
+|press_timeout|Maximum time, in milliseconds, the button can stay pressed. When the timeout expires, the button is reset. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TIMEOUT` to use the default timeout (15s). Set to `0` to disable the timeout.|
 
 **Example** - Create and initialize configuration settings.
 ```c
@@ -79,7 +79,7 @@ struct mgos_zbutton_cfg cfg = MGOS_ZBUTTON_CFG;
 ```c
 struct mgos_zbutton *mgos_zbutton_create(const char *id, struct mgos_zbutton_cfg *cfg);
 ```
-Create and initialize the button instance. Returns the instance handle, or `NULL` on error.
+Creates and initializes the button instance. Returns the instance handle, or `NULL` on error.
 
 |Parameter||
 |--|--|
@@ -88,11 +88,11 @@ Create and initialize the button instance. Returns the instance handle, or `NULL
 
 **Example 1** - Create a button using default configuration values.
 ```c
-// click_ticks = MGOS_ZBUTTON_DEFAULT_CLICK_TICKS
-// dblclick_delay_ticks = MGOS_ZBUTTON_DEFAULT_DBLCLICK_DELAY_TICKS
-// press_ticks = MGOS_ZBUTTON_DEFAULT_PRESS_TICKS
-// press_repeat_ticks = MGOS_ZBUTTON_DEFAULT_PRESS_TICKS
-// press_timeout = MGOS_ZBUTTON_DEFAULT_PRESS_TIMEOUT
+// click_ticks          => equals to MGOS_ZBUTTON_DEFAULT_CLICK_TICKS
+// dblclick_delay_ticks => equals to MGOS_ZBUTTON_DEFAULT_DBLCLICK_DELAY_TICKS
+// press_ticks          => equals to MGOS_ZBUTTON_DEFAULT_PRESS_TICKS
+// press_repeat_ticks   => equals to MGOS_ZBUTTON_DEFAULT_PRESS_TICKS
+// press_timeout        => equals to MGOS_ZBUTTON_DEFAULT_PRESS_TIMEOUT
 
 struct mgos_zbutton *btn = mgos_zbutton_create("btn-1", NULL);
 ```
@@ -118,7 +118,7 @@ Resets button's state.
 ```c
 bool mgos_zbutton_is_pressed(struct mgos_zbutton *handle);
 ```
-Returns `true` if the button is pressed (long press), otherwise `false`.
+Returns `true` if the button has been pressed (long-press), otherwise `false`.
 
 |Parameter||
 |--|--|
@@ -127,7 +127,7 @@ Returns `true` if the button is pressed (long press), otherwise `false`.
 ```c
 int mgos_zbutton_press_duration_get(struct mgos_zbutton *handle);
 ```
-Returns, in milliseconds, how long the button is pressed (long press). Returns `-1` if the button is not pressed.
+Returns how long the button has been pressed (in milliseconds). Returns `-1` if the button is not still pressed (long-press).
 
 |Parameter||
 |--|--|
@@ -136,7 +136,7 @@ Returns, in milliseconds, how long the button is pressed (long press). Returns `
 ```c
 int mgos_zbutton_press_counter_get(struct mgos_zbutton *handle);
 ```
-Returns the press (long press) counter. Returns `-1` if the button is not pressed. The counther is increased every `press_repeat_ticks` milliseconds if a configuration value greater than 0(zero) was provided.
+Returns the counter since the button has been pressed (long-press). Returns `-1` if the button is not still pressed. The counther is increased every `press_repeat_ticks` milliseconds if a configuration value greater than 0(zero) was provided.
 
 |Parameter||
 |--|--|
@@ -159,10 +159,10 @@ Creates and initializes the switch instance. Returns the instance, or `null` on 
 |*cfg*.clickTicks|numeric|Optional. Single click duration, in milliseconds.|
 |*cfg*.dblclickDelayTicks|numeric|Optional. The delay between the two double-click clicks, in milliseconds.|
 |*cfg*.pressTicks|numeric|Optional. Press duration, in milliseconds.|
-|*cfg*.pressRepeatTicks|numeric|Optional. Interval in milliseconds, for raising multiple `ZenButton.EV_ON_PRESS` events, subsequent to the first one. Set to `0` to disable events.|
+|*cfg*.pressRepeatTicks|numeric|Optional. Interval in milliseconds, for raising multiple `ZenButton.EV_ON_PRESS` events, subsequent to the first one. Set to `0` to disable event repetition.|
 |*cfg*.pressTimeout|numeric|Optional. Maximum time, in milliseconds, the button can stay pressed. When the timeout expires, the button is reset. Set to `0` to disable the timeout.|
 
-**Switch instance properties** - The created instance has following properties.
+**Button instance properties** - The created instance has following properties.
 |Property|Type||
 |--|--|--|
 |id|string|Instance ID.|
@@ -186,16 +186,16 @@ Resets button's state.
 ```js
 let pressed = btn.isPressed();
 ```
-Returns `true` if the button is pressed (long press), otherwise `false`.
+Returns `true` if the button has been pressed (long-press), otherwise `false`.
 ### .getPressDuration()
 ```js
-let duration = btn.getPressDuration();
+let duration = btn.getPressDuration(); //milliseconds
 ```
-Returns, in milliseconds, how long the button is pressed (long press). Returns `-1` if the button is not pressed.
+Returns how long the button has been pressed (in milliseconds). Returns `-1` if the button is not still pressed (long-press).
 ### .getPressCounter()
 ```js
 let counter = btn.getPressCounter();
 ```
-Returns the press (long press) counter. Returns `-1` if the button is not pressed. The counther is increased every `pressRepeatTicks` milliseconds if a configuration value greater than 0(zero) was provided.
+Returns the counter since the button has been pressed (long-press). Returns `-1` if the button is not still pressed. The counther is increased every `pressRepeatTicks` milliseconds if a configuration value greater than 0(zero) was provided.
 ## Additional resources
 No additional resources available.
