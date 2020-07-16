@@ -33,16 +33,13 @@ Button events. They can be classified in 2 different categories:
 - **Listening**: the button instance is litening to these events, and you can raise them using `mgos_event_trigger()` for driving the instance (e.g.: the [zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio) library uses these events for implementing gpio-based buttons ).
 - **Publishing**: the button instance publishes these events, so you can subcribe to them using `mgos_event_add_handler()`.
 
-|Listening event||
-|--|--|
-|MGOS_EV_ZBUTTON_DOWN|Send this event to the button instance when the phisical button of your devide is pushed down.|
-|MGOS_EV_ZBUTTON_UP|Send this event to the button instance when the phisical button of your devide is released.|
-
-|Publishing event||
-|--|--|
-|MGOS_EV_ZBUTTON_ON_CLICK|Published when the button is clicked (single-click).|
-|MGOS_EV_ZBUTTON_ON_DBLCLICK|Published when the button is bouble-clicked.|
-|MGOS_EV_ZBUTTON_ON_PRESS|Published when the button is pressed (long-press).|
+|Event|Type||
+|--|--|--|
+|MGOS_EV_ZBUTTON_DOWN|LISTENING|Send this event to the button instance when the phisical button of your devide is pushed down.|
+|MGOS_EV_ZBUTTON_UP|LISTENING|Send this event to the button instance when the phisical button of your devide is released.|
+|MGOS_EV_ZBUTTON_ON_CLICK|PUBLISHING|Published when the button is clicked (single-click).|
+|MGOS_EV_ZBUTTON_ON_DBLCLICK|PUBLISHING|Published when the button is bouble-clicked.|
+|MGOS_EV_ZBUTTON_ON_PRESS|PUBLISHING|Published when the button is pressed (long-press).|
 
 **Example 1** - Connect a gpio-based push button to the button instance.
 ```c
