@@ -41,7 +41,7 @@ Button events. They can be classified in 2 different categories:
 |MGOS_EV_ZBUTTON_ON_DBLCLICK|PUBLISHING|Published when the button is double-clicked.|
 |MGOS_EV_ZBUTTON_ON_PRESS|PUBLISHING|Published when the button is pressed (long-press).|
 
-**Example 1** - A push-button on pin 14 sends its state to the button instance.
+**Example 1** - A pushbutton on pin 14 sends its state to the button instance.
 ```c
 void mg_zbutton_gpio_button_handler_cb(int pin, void *arg) {
   struct mgos_zbutton *handle = (struct mgos_zbutton *)arg;
@@ -51,7 +51,7 @@ void mg_zbutton_gpio_button_handler_cb(int pin, void *arg) {
 }
 
 struct mgos_zbutton *btn = mgos_zbutton_create("btn-1", NULL);
-// Set the push-button handler
+// Set the pushbutton handler
 mgos_gpio_set_button_handler(14, MGOS_GPIO_PULL_UP, MGOS_GPIO_INT_EDGE_ANY,
   50, mg_zbutton_gpio_button_handler_cb, btn);
 ```
@@ -218,10 +218,10 @@ Button events. They can be classified in 2 different categories:
 |EV_ON_DBLCLICK|PUBLISHING|Published when the button is double-clicked.|
 |EV_ON_PRESS|PUBLISHING|Published when the button is pressed (long-press).|
 
-**Example 1** - A push-button on pin 14 sends its state to the button instance.
+**Example 1** - A pushbutton on pin 14 sends its state to the button instance.
 ```js
 let btn1 = ZenButton.create('btn-1');
-// Set the push-button handler
+// Set the pushbutton handler
 GPIO.set_button_handler(14, GPIO.PULL_UP, GPIO.INT_EDGE_ANY, 50,
 function(pin, btn) {
   let gpioVal = GPIO.read(pin);
@@ -302,4 +302,7 @@ let counter = btn.getPressCounter();
 ```
 Returns the counter since the button has been pressed (long-press). Returns `-1` if the button is not still pressed. The counther is increased every `pressRepeatTicks` milliseconds, if a configuration value greater than 0(zero) was provided.
 ## Additional resources
-No additional resources available.
+Take a look to some other samples or libraries.
+|Link|Type||
+|--|--|--|
+|[zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio)|Library|A ready-to-use Mongoose OS library for using gpio-based physical pushbuttons|
