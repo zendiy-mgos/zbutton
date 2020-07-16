@@ -204,7 +204,6 @@ ZenButton.EV_ZBUTTON_UP
 ZenButton.EV_ON_CLICK
 ZenButton.EV_ON_DBLCLICK
 ZenButton.EV_ON_PRESS
-};
 ```
 Button events. They can be classified in 2 different categories:
 - **Listening**: the button instance is litening to these events, and you can raise them using `Event.trigger()` for driving the instance (e.g.: the [zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio) library uses these events for implementing gpio-based buttons ).
@@ -222,12 +221,12 @@ Button events. They can be classified in 2 different categories:
 ```js
 let btn1 = ZenButton.create('btn-1');
 GPIO.set_button_handler(14, GPIO.PULL_UP, GPIO.INT_EDGE_ANY, 50,
-  function(pin, btn) {
-    let gpioVal = GPIO.read(pin);
-    let handle = ZenThing.getHandle(btn);
-    Event.trigger((gpioVal ? ZenButton.EV_ZBUTTON_DOWN : ZenButton.EV_ZBUTTON_UP), handle);
-    print("Triggering", btn.id, "button", (gpioVal ? "DOWN" : "UP"), "on pin", pin);
-  }, btn1);
+function(pin, btn) {
+  let gpioVal = GPIO.read(pin);
+  let handle = ZenThing.getHandle(btn);
+  Event.trigger((gpioVal ? ZenButton.EV_ZBUTTON_DOWN : ZenButton.EV_ZBUTTON_UP), handle);
+  print("Triggering", btn.id, "button", (gpioVal ? "DOWN" : "UP"), "on pin", pin);
+}, btn1);
 ```
 **Example 2** - Subscribe to the button events.
 ```js
