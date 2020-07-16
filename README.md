@@ -303,6 +303,6 @@ let counter = btn.getPressCounter();
 Returns the counter since the button has been pressed (long-press). Returns `-1` if the button is not still pressed. The counther is increased every `pressRepeatTicks` milliseconds, if a configuration value greater than 0(zero) was provided.
 ## Additional resources
 Take a look to some other samples or libraries.
-|Link|Type||
+|Reference|Type||
 |--|--|--|
 |[zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio)|Library|A ready-to-use Mongoose OS library for using gpio-based physical pushbuttons|
