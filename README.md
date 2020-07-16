@@ -197,6 +197,54 @@ Returns the counter since the button has been pressed (long-press). Returns `-1`
 |--|--|
 |handle|Button handle.|
 ## JS API Reference
+### ZenButton events
+```js
+ZenButton.EV_ZBUTTON_DOWN
+ZenButton.EV_ZBUTTON_UP
+ZenButton.EV_ON_CLICK
+ZenButton.EV_ON_DBLCLICK
+ZenButton.EV_ON_PRESS
+};
+```
+Button events. They can be classified in 2 different categories:
+- **Listening**: the button instance is litening to these events, and you can raise them using `Event.trigger()` for driving the instance (e.g.: the [zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio) library uses these events for implementing gpio-based buttons ).
+- **Publishing**: the button instance publishes these events, so you can subcribe to them using `Event.addHandler()`.
+
+|Event|Type||
+|--|--|--|
+|EV_ZBUTTON_DOWN|LISTENING|Send this event to the button instance when the phisical button of your devide is pushed down.|
+|EV_ZBUTTON_UP|LISTENING|Send this event to the button instance when the phisical button of your devide is released.|
+|EV_ON_CLICK|PUBLISHING|Published when the button is clicked (single-click).|
+|EV_ON_DBLCLICK|PUBLISHING|Published when the button is bouble-clicked.|
+|EV_ON_PRESS|PUBLISHING|Published when the button is pressed (long-press).|
+
+**Example 1** - Connect a gpio-based push button to the button instance.
+```js
+let btn1 = ZenButton.create('btn-1');
+GPIO.set_button_handler(14, GPIO.PULL_UP, GPIO.INT_EDGE_ANY, 50,
+  function(pin, btn) {
+    let gpioVal = GPIO.read(pin);
+    let handle = ZenThing.getHandle(btn);
+    Event.trigger((gpioVal ? ZenButton.EV_ZBUTTON_DOWN : ZenButton.EV_ZBUTTON_UP), handle);
+    print("Triggering", btn.id, "button", (gpioVal ? "DOWN" : "UP"), "on pin", pin);
+  }, btn1);
+```
+**Example 2** - Subscribe to the button events.
+```js
+function onBtnEvent(ev, evdata, ud) {
+  let btn = ZenThing.getFromHandle(evdata);
+  if (ev === ZenButton.EV_ON_CLICK) {
+    print("Button ", btn.id, " CLICKED");
+  } else if (ev === ZenButton.EV_ON_DBLCLICK) {
+    print("Button ", btn.id, " DOUBLE-CLICKED");
+  } else if (ev === ZenButton.EV_ON_PRESS) {
+    print("Button ", btn.id, " PRESSED ", btn.getPressCounter());
+  }
+}
+Event.addHandler(ZenButton.EV_ON_CLICK, onBtnEvent, null);
+Event.addHandler(ZenButton.EV_ON_DBLCLICK, onBtnEvent, null);
+Event.addHandler(ZenButton.EV_ON_PRESS, onBtnEvent, null);
+```
 ### ZenButton.create()
 ```js
 let btn = ZenButton.create(id, cfg);

@@ -12,11 +12,11 @@ let ZenButton = {
   THING_TYPE: (8 | ZenThing.TYPE_SENSOR),
 
   // Event codes.
-  EV_ZBUTTON_DOWN: 1514294784, // Connection to broker has been established.
-  EV_ZBUTTON_UP: 1514294785,   // A message has been published to one of the topics we are subscribed to.
-  EV_ON_CLICK: 1514294786,     // the button was clicked
-  EV_ON_DBLCLICK: 1514294787,  // the button was double-clicked.
-  EV_ON_PRESS: 1514294788,     // the button is pressed
+  EV_ZBUTTON_DOWN: 1514294784, // Send this event to the button instance when the phisical button of your devide is pushed down.
+  EV_ZBUTTON_UP: 1514294785,   // Send this event to the button instance when the phisical button of your devide is released.
+  EV_ON_CLICK: 1514294786,     // Published when the button is clicked (single-click).
+  EV_ON_DBLCLICK: 1514294787,  // Published when the button is bouble-clicked.
+  EV_ON_PRESS: 1514294788,     // Published when the button is pressed (long-press).
 
   // ## **`ZenButton.create(id, cfg)`**
   //
