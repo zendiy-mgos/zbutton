@@ -27,34 +27,43 @@ struct mg_zbutton {
 
 #define MG_ZBUTTON_CAST(h) ((struct mg_zbutton *)h)
 
-bool mg_zbutton_cfg_set(struct mgos_zbutton *handle,
-                        struct mgos_zbutton_cfg *cfg) {
-  if (!handle) return false;
-  if (cfg != NULL) {
-    if (cfg->click_ticks <= 0) {
+bool mg_zbutton_cfg_set(struct mgos_zbutton_cfg *cfg_src,
+                        struct mgos_zbutton_cfg *cfg_dest) {
+  if (!cfg_dest) return false;
+  if (cfg_src != NULL) {
+    if (cfg_src->click_ticks == 0) {
       LOG(LL_ERROR, ("Invalid config: 'click_ticks' must be greater than 0(zero)"));
       return false;
     }
-    if (cfg->dblclick_delay_ticks <= 0) {
+    if (cfg_src->dblclick_delay_ticks == 0) {
       LOG(LL_ERROR, ("Invalid config: 'dblclick_delay_ticks' must be greater than 0(zero)"));
       return false;
     }
-    if (cfg->press_ticks > 0 && cfg->press_ticks <= cfg->click_ticks) {
-      LOG(LL_ERROR, ("Invalid config: 'press_ticks' must be greater than 'click_ticks' (>%d).", cfg->click_ticks));
+    if (cfg_src->press_ticks == 0) {
+      LOG(LL_ERROR, ("Invalid config: 'press_ticks' must be greater than 0(zero)"));
       return false;
     }
-    if (cfg->press_timeout > 0 && cfg->press_timeout <= cfg->press_ticks) {
-      LOG(LL_ERROR, ("Invalid config: 'press_timeout' must be greater than 'press_ticks' (>%d).", cfg->press_ticks));
+    if (cfg_src->press_ticks > 0 && cfg_src->press_ticks <= cfg_src->click_ticks) {
+      LOG(LL_ERROR, ("Invalid config: 'press_ticks' must be greater than 'click_ticks' (>%d).", cfg_src->click_ticks));
       return false;
     }
-  }
+    if (cfg_src->press_timeout > 0 && cfg_src->press_timeout <= cfg_src->press_ticks) {
+      LOG(LL_ERROR, ("Invalid config: 'press_timeout' must be greater than 'press_ticks' (>%d).", cfg_src->press_ticks));
+      return false;
+    }
 
-  struct mg_zbutton *h = MG_ZBUTTON_CAST(handle);
-  h->cfg.click_ticks = (cfg == NULL ? MGOS_ZBUTTON_DEFAULT_CLICK_TICKS : cfg->click_ticks);
-  h->cfg.dblclick_delay_ticks = (cfg == NULL ? MGOS_ZBUTTON_DEFAULT_DBLCLICK_DELAY_TICKS : cfg->dblclick_delay_ticks);
-  h->cfg.press_ticks = (cfg == NULL ? MGOS_ZBUTTON_DEFAULT_PRESS_TICKS : cfg->press_ticks);
-  h->cfg.press_repeat_ticks = (cfg == NULL ? MGOS_ZBUTTON_DEFAULT_PRESS_TICKS : cfg->press_repeat_ticks);  
-  h->cfg.press_timeout = (cfg == NULL ? MGOS_ZBUTTON_DEFAULT_PRESS_TIMEOUT : cfg->press_timeout);
+    cfg_dest->click_ticks = (cfg_src->click_ticks == -1 ? MGOS_ZBUTTON_DEFAULT_CLICK_TICKS : cfg_src->click_ticks);
+    cfg_dest->dblclick_delay_ticks = (cfg_src->dblclick_delay_ticks == -1 ? MGOS_ZBUTTON_DEFAULT_DBLCLICK_DELAY_TICKS : cfg_src->dblclick_delay_ticks);
+    cfg_dest->press_ticks = (cfg_src->press_ticks == -1 ? MGOS_ZBUTTON_DEFAULT_PRESS_TICKS : cfg_src->press_ticks);
+    cfg_dest->press_repeat_ticks = (cfg_src->press_repeat_ticks == -1 ? MGOS_ZBUTTON_DEFAULT_PRESS_TICKS : cfg_src->press_repeat_ticks);  
+    cfg_dest->press_timeout = (cfg_src->press_timeout == -1 ? MGOS_ZBUTTON_DEFAULT_PRESS_TIMEOUT : cfg_src->press_timeout);
+  } else {
+    cfg_dest->click_ticks = MGOS_ZBUTTON_DEFAULT_CLICK_TICKS;
+    cfg_dest->dblclick_delay_ticks = MGOS_ZBUTTON_DEFAULT_DBLCLICK_DELAY_TICKS;
+    cfg_dest->press_ticks = MGOS_ZBUTTON_DEFAULT_PRESS_TICKS;
+    cfg_dest->press_repeat_ticks = MGOS_ZBUTTON_DEFAULT_PRESS_TICKS;
+    cfg_dest->press_timeout = MGOS_ZBUTTON_DEFAULT_PRESS_TIMEOUT;
+  }
   return true;
 }
 
@@ -66,7 +75,7 @@ struct mgos_zbutton *mgos_zbutton_create(const char *id,
     handle->id = strdup(id);
     handle->type = MGOS_ZTHING_BUTTON;
 
-    if (mg_zbutton_cfg_set(MGOS_ZBUTTON_CAST(handle), cfg)) {
+    if (mg_zbutton_cfg_set(cfg, &handle->cfg)) {
       handle->press_timer_id = MGOS_INVALID_TIMER_ID;
       
       mgos_zbutton_reset(MGOS_ZBUTTON_CAST(handle));
@@ -274,20 +283,17 @@ struct mgos_zbutton_cfg *mjs_zbutton_cfg_create(int click_ticks,
                                                 int press_ticks,
                                                 int press_repeat_ticks,
                                                 int press_timeout) {
-  struct mgos_zbutton_cfg *cfg = calloc(1, sizeof(struct mgos_zbutton_cfg));
-  if (cfg != NULL) {
-    cfg->click_ticks = (click_ticks <= 0 ? 
-      MGOS_ZBUTTON_DEFAULT_CLICK_TICKS : click_ticks);
-    cfg->dblclick_delay_ticks = (dblclick_delay_ticks <= 0 ? 
-      MGOS_ZBUTTON_DEFAULT_DBLCLICK_DELAY_TICKS : dblclick_delay_ticks);
-    cfg->press_ticks = (press_ticks == -1 ? 
-      MGOS_ZBUTTON_DEFAULT_PRESS_TICKS : press_ticks);
-    cfg->press_repeat_ticks = (press_repeat_ticks == -1 ? 
-      MGOS_ZBUTTON_DEFAULT_PRESS_TICKS : press_repeat_ticks);
-    cfg->press_timeout = (press_timeout == -1 ? 
-      MGOS_ZBUTTON_DEFAULT_PRESS_TIMEOUT : press_timeout);
-  }
-  return cfg;
+  struct mgos_zbutton_cfg cfg_src = {
+    click_ticks,
+    dblclick_delay_ticks,
+    press_ticks,
+    press_repeat_ticks,
+    press_timeout
+  };
+  struct mgos_zbutton_cfg *cfg_dest = calloc(1, sizeof(struct mgos_zbutton_cfg));
+  if (mg_zbutton_cfg_set(&cfg_src, cfg_dest)) return cfg_dest;
+  free (cfg_dest);
+  return NULL;
 }
 
 #endif /* MGOS_HAVE_MJS */

@@ -32,8 +32,9 @@ let ZenButton = {
         ZenThing._getSafe(dblclickDelayTicks, -1),
         ZenThing._getSafe(pressTicks, -1),
         ZenThing._getSafe(pressRepeatTicks, -1),
-        ZenThing._getSafe(pressTimeout,-1)
+        ZenThing._getSafe(pressTimeout, -1)
       );
+      if (cfgo == null) return null;
     }
     // create the handle
     let handle = ZenButton._crt(id, cfgo);
