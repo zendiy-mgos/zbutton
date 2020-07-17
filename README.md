@@ -305,4 +305,4 @@ Returns the counter since the button has been pressed (long-press). Returns `-1`
 Take a look to some other samples or libraries.
 |Reference|Type||
 |--|--|--|
-|[zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio)|Library|A ready-to-use Mongoose OS library for using gpio-based physical pushbuttons.|
+|[zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio)|Library|A ready-to-use Mongoose-OS library for using gpio-based physical pushbuttons.|
