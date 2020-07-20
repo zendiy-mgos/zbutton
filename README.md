@@ -120,7 +120,7 @@ Button configuration values (e.g.: used by  `gos_zbutton_create()`).
 
 |Field||
 |--|--|
-|click_ticks|Single click duration, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_CLICK_TICKS` to use the default 140ms duration.|
+|click_ticks|Single click duration, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_CLICK_TICKS` to use the default duration (140ms).|
 |dblclick_delay_ticks|The delay between the two double-click clicks, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_DBLCLICK_DELAY_TICKS` to use the default delay (160ms).|
 |press_ticks|Press duration, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TICKS ` to use the default duration (1.5s).|
 |press_repeat_ticks|Interval in milliseconds, for raising multiple `MGOS_EV_ZBUTTON_ON_PRESS` events, subsequent to the first one. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TICKS` to use the default interval (1.5s). Set to `0` to disable event repetition.|
@@ -303,6 +303,7 @@ let counter = btn.getPressCounter();
 Returns the counter since the button has been pressed (long-press). Returns `-1` if the button is not still pressed. The counther is increased every `pressRepeatTicks` milliseconds, if a configuration value greater than 0(zero) was provided.
 ## Additional resources
 Take a look to some other samples or libraries.
+
 |Reference|Type||
 |--|--|--|
 |[zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio)|Library|A ready-to-use Mongoose OS library for using gpio-based physical pushbuttons.|

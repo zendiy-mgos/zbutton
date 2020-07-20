@@ -292,7 +292,7 @@ struct mgos_zbutton_cfg *mjs_zbutton_cfg_create(int click_ticks,
   };
   struct mgos_zbutton_cfg *cfg_dest = calloc(1, sizeof(struct mgos_zbutton_cfg));
   if (mg_zbutton_cfg_set(&cfg_src, cfg_dest)) return cfg_dest;
-  free (cfg_dest);
+  free(cfg_dest);
   return NULL;
 }
 
