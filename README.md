@@ -255,16 +255,25 @@ Creates and initializes the switch instance. Returns the instance, or `null` on 
 |Parameter|Type||
 |--|--|--|
 |id|string|Unique ZenThing ID.|
-|cfg|object|Optional. Button configuration. If missing, default configuration values are used.|
+|cfg|object|Optional. Button configuration. If missing, default configuration values are used. For more details see *'Button configuration properties'* below.|
 
 **Button configuration properties**
+```js
+{
+  clickTicks: 140,
+  dblclickDelayTicks: 160,
+  pressTicks: 1500,         //1.5s
+  pressRepeatTicks: 1500,   //1.5s
+  pressTimeout: 15000       //15s
+}
+```
 |Property|Type||
 |--|--|--|
-|*cfg*.clickTicks|numeric|Optional. Single click duration, in milliseconds. Default value 140ms.|
-|*cfg*.dblclickDelayTicks|numeric|Optional. The delay between the two double-click clicks, in milliseconds. Default value 160ms.|
-|*cfg*.pressTicks|numeric|Optional. Press duration, in milliseconds. Default value 1.5s.|
-|*cfg*.pressRepeatTicks|numeric|Optional. Interval in milliseconds, for raising multiple `ZenButton.EV_ON_PRESS` events, subsequent to the first one. Set to `0` to disable event repetition. Default value 1.5s.|
-|*cfg*.pressTimeout|numeric|Optional. Maximum time, in milliseconds, the button can stay pressed. When the timeout expires, the button is reset. Set to `0` to disable the timeout. Default value 15s.|
+|clickTicks|numeric|Optional. Single click duration, in milliseconds. Default value 140ms.|
+|dblclickDelayTicks|numeric|Optional. The delay between the two double-click clicks, in milliseconds. Default value 160ms.|
+|pressTicks|numeric|Optional. Press duration, in milliseconds. Default value 1.5s.|
+|pressRepeatTicks|numeric|Optional. Interval in milliseconds, for raising multiple `ZenButton.EV_ON_PRESS` events, subsequent to the first one. Set to `0` to disable event repetition. Default value 1.5s.|
+|pressTimeout|numeric|Optional. Maximum time, in milliseconds, the button can stay pressed. When the timeout expires, the button is reset. Set to `0` to disable the timeout. Default value 15s.|
 
 **Button instance properties** - The created instance has following properties.
 |Property|Type||
