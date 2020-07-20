@@ -260,11 +260,11 @@ Creates and initializes the switch instance. Returns the instance, or `null` on 
 **Button configuration properties**
 |Property|Type||
 |--|--|--|
-|*cfg*.clickTicks|numeric|Optional. Single click duration, in milliseconds.|
-|*cfg*.dblclickDelayTicks|numeric|Optional. The delay between the two double-click clicks, in milliseconds.|
-|*cfg*.pressTicks|numeric|Optional. Press duration, in milliseconds.|
-|*cfg*.pressRepeatTicks|numeric|Optional. Interval in milliseconds, for raising multiple `ZenButton.EV_ON_PRESS` events, subsequent to the first one. Set to `0` to disable event repetition.|
-|*cfg*.pressTimeout|numeric|Optional. Maximum time, in milliseconds, the button can stay pressed. When the timeout expires, the button is reset. Set to `0` to disable the timeout.|
+|*cfg*.clickTicks|numeric|Optional. Single click duration, in milliseconds. Default value `140ms`.|
+|*cfg*.dblclickDelayTicks|numeric|Optional. The delay between the two double-click clicks, in milliseconds. Default value `160ms`.|
+|*cfg*.pressTicks|numeric|Optional. Press duration, in milliseconds. Default value `1.5s`.|
+|*cfg*.pressRepeatTicks|numeric|Optional. Interval in milliseconds, for raising multiple `ZenButton.EV_ON_PRESS` events, subsequent to the first one. Set to `0` to disable event repetition. Default value `1.5s`.|
+|*cfg*.pressTimeout|numeric|Optional. Maximum time, in milliseconds, the button can stay pressed. When the timeout expires, the button is reset. Set to `0` to disable the timeout. Default value `15s`.|
 
 **Button instance properties** - The created instance has following properties.
 |Property|Type||
