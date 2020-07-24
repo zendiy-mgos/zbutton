@@ -1,6 +1,6 @@
 # ZenButton
 ## Overview
-A Mongoose-OS library for ZenButtons ecosystem.
+Mongoose-OS library for ZenButtons ecosystem.
 
 ## GET STARTED
 Build up your own device in few minutes just starting from one of the following samples.
@@ -315,5 +315,5 @@ Take a look to some other samples or libraries.
 
 |Reference|Type||
 |--|--|--|
-|[zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio)|Library|A ready-to-use Mongoose-OS library for using gpio-based physical pushbuttons.|
-|[zbutton-mqtt](https://github.com/zendiy-mgos/zbutton-mqtt)|Library|A ready-to-use Mongoose-OS library for publishing ZenButtons events as MQTT messages.|
+|[zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio)|Library|Mongoose-OS library for attaching ZenButtons to gpio-based pushbuttons.|
+|[zbutton-mqtt](https://github.com/zendiy-mgos/zbutton-mqtt)|Library|Mongoose-OS library for publishing ZenButtons events as MQTT messages.|
