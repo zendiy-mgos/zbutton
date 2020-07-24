@@ -7,7 +7,7 @@ Build up your own device in few minutes just starting from one of the following 
 
 |Sample|Notes|
 |--|--|
-|[zbutton-mqtt-demo](https://github.com/zendiy-mgos/zbutton-mqtt-demo)|Mongoose-OS demo firmware for publishing ZenButtons events as MQTT messages.|
+|[zbutton-mqtt-demo](https://github.com/zendiy-mgos/zbutton-mqtt-demo)|Mongoose-OS demo firmware that uses ZenButtons ecosystem for publishing pushbutton events as MQTT messages.|
 ## Usage
 Include the library into your `mos.yml` file.
 ```yaml
