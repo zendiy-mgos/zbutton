@@ -22,8 +22,8 @@ load('api_zbutton.js');
 ### mgos_zbutton_event
 ```c
 enum mgos_zbutton_event {
-  MGOS_EV_ZBUTTON_DOWN = MGOS_ZBUTTON_EVENT_BASE,
-  MGOS_EV_ZBUTTON_UP,
+  MGOS_EV_ZBUTTON_ON_DOWN = MGOS_ZBUTTON_EVENT_BASE,
+  MGOS_EV_ZBUTTON_ON_UP,
   MGOS_EV_ZBUTTON_ON_CLICK,
   MGOS_EV_ZBUTTON_ON_DBLCLICK,
   MGOS_EV_ZBUTTON_ON_PRESS
@@ -35,8 +35,8 @@ Button events. They can be classified in 2 different categories:
 
 |Event|Type||
 |--|--|--|
-|MGOS_EV_ZBUTTON_DOWN|LISTENING|Send this event to the button instance when the phisical button of your device is pushed down.|
-|MGOS_EV_ZBUTTON_UP|LISTENING|Send this event to the button instance when the phisical button of your device is released.|
+|MGOS_EV_ZBUTTON_ON_DOWN|LISTENING|Send this event to the button instance when the phisical button of your device is pushed down.|
+|MGOS_EV_ZBUTTON_ON_UP|LISTENING|Send this event to the button instance when the phisical button of your device is released.|
 |MGOS_EV_ZBUTTON_ON_CLICK|PUBLISHING|Published when the button is clicked (single-click).|
 |MGOS_EV_ZBUTTON_ON_DBLCLICK|PUBLISHING|Published when the button is double-clicked.|
 |MGOS_EV_ZBUTTON_ON_PRESS|PUBLISHING|Published when the button is pressed (long-press).|
@@ -46,7 +46,7 @@ Button events. They can be classified in 2 different categories:
 void mg_zbutton_gpio_button_handler_cb(int pin, void *arg) {
   struct mgos_zbutton *handle = (struct mgos_zbutton *)arg;
   bool gpio_val = mgos_gpio_read(pin);  
-  mgos_event_trigger(gpio_val ? MGOS_EV_ZBUTTON_DOWN : MGOS_EV_ZBUTTON_UP, handle);
+  mgos_event_trigger(gpio_val ? MGOS_EV_ZBUTTON_ON_DOWN : MGOS_EV_ZBUTTON_ON_UP, handle);
   LOG(LL_DEBUG, ("Triggering button %s on pin %d ('%s').", gpio_val ? "DOWN" : "UP", pin, handle->id));
 }
 

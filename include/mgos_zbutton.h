@@ -40,34 +40,33 @@ struct mg_zbutton;
 
 #define MGOS_ZBUTTON_CAST(h) ((struct mgos_zbutton *)h)
 
-#define MGOS_ZBUTTON_DEFAULT_CLICK_TICKS 140 //milliseconds
-#define MGOS_ZBUTTON_DEFAULT_DBLCLICK_DELAY_TICKS 160 //milliseconds
-#define MGOS_ZBUTTON_DEFAULT_PRESS_TICKS 1500 //1.5 seconds
-#define MGOS_ZBUTTON_DEFAULT_PRESS_TIMEOUT 15000 //15 seconds
+#define MGOS_ZBUTTON_DEFAULT_CLICK_TICKS 600 //milliseconds
+#define MGOS_ZBUTTON_DEFAULT_PRESS_TICKS 1000 //1 second
+#define MGOS_ZBUTTON_DEFAULT_DEBOUNCE_TICKS 50 //milliseconds
 
 #define MGOS_ZBUTTON_CFG {                    \
   MGOS_ZBUTTON_DEFAULT_CLICK_TICKS,           \
-  MGOS_ZBUTTON_DEFAULT_DBLCLICK_DELAY_TICKS,  \
   MGOS_ZBUTTON_DEFAULT_PRESS_TICKS,           \
   MGOS_ZBUTTON_DEFAULT_PRESS_TICKS,           \
-  MGOS_ZBUTTON_DEFAULT_PRESS_TIMEOUT }
+  MGOS_ZBUTTON_DEFAULT_DEBOUNCE_TICKS }
 
 struct mgos_zbutton_cfg {
   int click_ticks;
-  int dblclick_delay_ticks;
   int press_ticks;
   int press_repeat_ticks;
-  int press_timeout;
+  int debounce_ticks;
 };
 
 #define MGOS_ZBUTTON_EVENT_BASE MGOS_EVENT_BASE('Z', 'B', 'N')
 
 enum mgos_zbutton_event {
-  MGOS_EV_ZBUTTON_DOWN = MGOS_ZBUTTON_EVENT_BASE,
-  MGOS_EV_ZBUTTON_UP,
+  MGOS_EV_ZBUTTON_ON_ANY = MGOS_ZBUTTON_EVENT_BASE,
+  MGOS_EV_ZBUTTON_ON_DOWN,
+  MGOS_EV_ZBUTTON_ON_UP,
   MGOS_EV_ZBUTTON_ON_CLICK,
   MGOS_EV_ZBUTTON_ON_DBLCLICK,
-  MGOS_EV_ZBUTTON_ON_PRESS
+  MGOS_EV_ZBUTTON_ON_PRESS,
+  MGOS_EV_ZBUTTON_ON_PRESS_END
 };
 
 struct mgos_zbutton *mgos_zbutton_create(const char *id,
