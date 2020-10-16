@@ -22,24 +22,28 @@ load('api_zbutton.js');
 ### mgos_zbutton_event
 ```c
 enum mgos_zbutton_event {
-  MGOS_EV_ZBUTTON_ON_DOWN = MGOS_ZBUTTON_EVENT_BASE,
+  MGOS_EV_ZBUTTON_ON_ANY,
+  MGOS_EV_ZBUTTON_ON_DOWN,
   MGOS_EV_ZBUTTON_ON_UP,
   MGOS_EV_ZBUTTON_ON_CLICK,
   MGOS_EV_ZBUTTON_ON_DBLCLICK,
-  MGOS_EV_ZBUTTON_ON_PRESS
+  MGOS_EV_ZBUTTON_ON_PRESS,
+  MGOS_EV_ZBUTTON_ON_PRESS_END
 };
 ```
 Button events. They can be classified in 2 different categories:
 - **Listening**: the button instance is litening to these events, and you can raise them using `mgos_event_trigger()` for driving the instance (e.g.: the [zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio) library uses these events for implementing gpio-based buttons ).
-- **Publishing**: the button instance publishes these events, so you can subcribe to them using `mgos_event_add_handler()`.
+- **Publishing**: the button instance publishes these events, so you can subcribe to them using `mgos_event_add_handler()` or `mgos_event_add_group_handler()`.
 
 |Event|Type||
 |--|--|--|
+|MGOS_EV_ZBUTTON_ON_ANY|PUBLISHING|Subscribe to this event using `mgos_event_add_group_handler()`.|
 |MGOS_EV_ZBUTTON_ON_DOWN|LISTENING|Send this event to the button instance when the phisical button of your device is pushed down.|
 |MGOS_EV_ZBUTTON_ON_UP|LISTENING|Send this event to the button instance when the phisical button of your device is released.|
 |MGOS_EV_ZBUTTON_ON_CLICK|PUBLISHING|Published when the button is clicked (single-click).|
 |MGOS_EV_ZBUTTON_ON_DBLCLICK|PUBLISHING|Published when the button is double-clicked.|
 |MGOS_EV_ZBUTTON_ON_PRESS|PUBLISHING|Published when the button is pressed (long-press).|
+|MGOS_EV_ZBUTTON_ON_PRESS_END|PUBLISHING|Published when the button press (long-press) ends.|
 
 **Example 1** - A pushbutton on pin 14 sends its state to the button instance.
 ```c
@@ -67,13 +71,14 @@ void mg_btn_on_event_cb(int ev, void *ev_data, void *ud) {
     } else if (ev == MGOS_EV_ZBUTTON_ON_PRESS) {
       LOG(LL_INFO, ("Button '%s' PRESSED (#%d)", handle->id,
         mgos_zbutton_press_counter_get(handle)));
+    } else if (ev == MGOS_EV_ZBUTTON_ON_PRESS_END) {
+      LOG(LL_INFO, ("Button '%s' RELEASED (pressed for %dms)", handle->id,
+        mgos_zbutton_press_duration_get(handle)));
     }
   }
   (void) ud;
 }
-mgos_event_add_handler(MGOS_EV_ZBUTTON_ON_CLICK, mg_btn_on_event_cb, NULL);
-mgos_event_add_handler(MGOS_EV_ZBUTTON_ON_DBLCLICK, mg_btn_on_event_cb, NULL);
-mgos_event_add_handler(MGOS_EV_ZBUTTON_ON_PRESS, mg_btn_on_event_cb, NULL); 
+mgos_event_add_group_handler(MGOS_EV_ZBUTTON_ON_ANY, mg_btn_on_event_cb, NULL);
 ```
 ### mgos_zbutton
 ```c
@@ -110,21 +115,19 @@ Button's handle detected.
 ```c
 struct mgos_zbutton_cfg {
   int click_ticks;
-  int dblclick_delay_ticks;
   int press_ticks;
   int press_repeat_ticks;
-  int press_timeout;
+  int debounce_ticks;
 };
 ```
 Button configuration values (e.g.: used by  `gos_zbutton_create()`).
 
 |Field||
 |--|--|
-|click_ticks|Single click duration, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_CLICK_TICKS` to use the default duration (140ms).|
-|dblclick_delay_ticks|The delay between the two double-click clicks, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_DBLCLICK_DELAY_TICKS` to use the default delay (160ms).|
-|press_ticks|Press duration, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TICKS ` to use the default duration (1.5s).|
-|press_repeat_ticks|Interval in milliseconds, for raising multiple `MGOS_EV_ZBUTTON_ON_PRESS` events, subsequent to the first one. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TICKS` to use the default interval (1.5s). Set to `0` to disable event repetition.|
-|press_timeout|Maximum time, in milliseconds, the button can stay pressed. When the timeout expires, the button is reset. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TIMEOUT` to use the default timeout (15s). Set to `0` to disable the timeout.|
+|click_ticks|Single click duration, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_CLICK_TICKS` to use the default duration (600ms).|
+|press_ticks|Press duration, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TICKS ` to use the default duration (1s).|
+|press_repeat_ticks|Interval in milliseconds, for raising multiple `MGOS_EV_ZBUTTON_ON_PRESS` events, subsequent to the first one. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TICKS` to use the default interval (1s). Set to `0` to disable event repetition.|
+|debounce_ticks|Debounce timeout, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_DEBOUNCE_TIMEOUT` to use the default timeout (50ms). Set to `0` to disable the timeout.|
 
 **Example** - Create and initialize configuration settings.
 ```c
@@ -145,10 +148,9 @@ Creates and initializes the button instance. Returns the instance handle, or `NU
 **Example 1** - Create a button using default configuration values.
 ```c
 // click_ticks          => equals to MGOS_ZBUTTON_DEFAULT_CLICK_TICKS
-// dblclick_delay_ticks => equals to MGOS_ZBUTTON_DEFAULT_DBLCLICK_DELAY_TICKS
 // press_ticks          => equals to MGOS_ZBUTTON_DEFAULT_PRESS_TICKS
 // press_repeat_ticks   => equals to MGOS_ZBUTTON_DEFAULT_PRESS_TICKS
-// press_timeout        => equals to MGOS_ZBUTTON_DEFAULT_PRESS_TIMEOUT
+// debounce_ticks       => equals to MGOS_ZBUTTON_DEFAULT_DEBOUNCE_TICKS
 
 struct mgos_zbutton *btn = mgos_zbutton_create("btn-1", NULL);
 ```
