@@ -167,7 +167,7 @@ static void mg_zbutton_tick_cb(void *arg) {
   } else if (h->state == ZBUTTON_STATE_DOWN) { // waiting for button being released.
     int start_ticks = ((now - h->start_time) / 1000);
     if (h->state_req == ZBUTTON_STATE_UP) {
-      if (start_ticks < h->cfg.debounce_ticks ) {
+      if (h->cfg.debounce_ticks > 0 && start_ticks < h->cfg.debounce_ticks) {
         // The button was released to quickly so I assume some debouncing.
         // So, go back to STATE_UP without calling a function.
         mgos_zbutton_reset(MGOS_ZBUTTON_CAST(h)); // restart
@@ -202,7 +202,7 @@ static void mg_zbutton_tick_cb(void *arg) {
 
       mgos_zbutton_reset(MGOS_ZBUTTON_CAST(h)); // restart
     } else if (h->state_req == ZBUTTON_STATE_DOWN) {
-      if (((now - h->stop_time) / 1000) > h->cfg.debounce_ticks) {
+      if (h->cfg.debounce_ticks == 0 || ((now - h->stop_time) / 1000) > h->cfg.debounce_ticks) {
         h->state = ZBUTTON_STATE_SECOND_DOWN;
         h->start_time = now;
       }

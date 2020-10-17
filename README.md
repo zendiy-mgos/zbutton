@@ -87,7 +87,7 @@ struct mgos_zbutton {
   int type;
 };
 ```
-Button handle. You can get a valid handle using `gos_zbutton_create()`.
+Button handle. You can get a valid handle using `mgos_zbutton_create()`.
 
 |Field||
 |--|--|
@@ -120,14 +120,14 @@ struct mgos_zbutton_cfg {
   int debounce_ticks;
 };
 ```
-Button configuration values (e.g.: used by  `gos_zbutton_create()`).
+Button configuration values (e.g.: used by `mgos_zbutton_create()`).
 
 |Field||
 |--|--|
 |click_ticks|Single click duration, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_CLICK_TICKS` to use the default duration (600ms).|
 |press_ticks|Press duration, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TICKS ` to use the default duration (1s).|
 |press_repeat_ticks|Interval in milliseconds, for raising multiple `MGOS_EV_ZBUTTON_ON_PRESS` events, subsequent to the first one. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TICKS` to use the default interval (1s). Set to `0` to disable event repetition.|
-|debounce_ticks|Debounce timeout, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_DEBOUNCE_TIMEOUT` to use the default timeout (50ms). Set to `0` to disable the timeout.|
+|debounce_ticks|Debouncing time, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_DEBOUNCE_TIMEOUT` to use the default timeout (50ms). Set to `0` to disable it.|
 
 **Example** - Create and initialize configuration settings.
 ```c
@@ -202,23 +202,27 @@ Returns the counter since the button has been pressed (long-press). Returns `-1`
 ## JS API Reference
 ### ZenButton events
 ```js
-ZenButton.EV_ZBUTTON_DOWN
-ZenButton.EV_ZBUTTON_UP
+ZenButton.EV_ON_ANY
+ZenButton.EV_ON_DOWN
+ZenButton.EV_ON_UP
 ZenButton.EV_ON_CLICK
 ZenButton.EV_ON_DBLCLICK
 ZenButton.EV_ON_PRESS
+ZenButton.EV_ON_PRESS_END
 ```
 Button events. They can be classified in 2 different categories:
 - **Listening**: the button instance is litening to these events, and you can raise them using `Event.trigger()` for driving the instance (e.g.: the [zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio) library uses these events for implementing gpio-based buttons ).
-- **Publishing**: the button instance publishes these events, so you can subcribe to them using `Event.addHandler()`.
+- **Publishing**: the button instance publishes these events, so you can subcribe to them using `Event.addHandler()` or `Event.addGroupHandler()`.
 
 |Event|Type||
 |--|--|--|
-|EV_ZBUTTON_DOWN|LISTENING|Send this event to the button instance when the phisical button of your device is pushed down.|
-|EV_ZBUTTON_UP|LISTENING|Send this event to the button instance when the phisical button of your device is released.|
+|EV_ON_ANY|PUBLISHING|Subscribe to this event using `Event.addGroupHandler()`.|
+|EV_ON_DOWN|LISTENING|Send this event to the button instance when the phisical button of your device is pushed down.|
+|EV_ON_UP|LISTENING|Send this event to the button instance when the phisical button of your device is released.|
 |EV_ON_CLICK|PUBLISHING|Published when the button is clicked (single-click).|
 |EV_ON_DBLCLICK|PUBLISHING|Published when the button is double-clicked.|
 |EV_ON_PRESS|PUBLISHING|Published when the button is pressed (long-press).|
+|EV_ON_PRESS_END|PUBLISHING|Published when the button press (long-press) ends.|
 
 **Example 1** - A pushbutton on pin 14 sends its state to the button instance.
 ```js
@@ -237,16 +241,16 @@ function(pin, btn) {
 function onBtnEvent(ev, evdata, ud) {
   let btn = ZenThing.getFromHandle(evdata);
   if (ev === ZenButton.EV_ON_CLICK) {
-    print("Button ", btn.id, " CLICKED");
+    print("Button", btn.id, "CLICKED");
   } else if (ev === ZenButton.EV_ON_DBLCLICK) {
-    print("Button ", btn.id, " DOUBLE-CLICKED");
+    print("Button", btn.id, "DOUBLE-CLICKED");
   } else if (ev === ZenButton.EV_ON_PRESS) {
-    print("Button ", btn.id, " PRESSED ", btn.getPressCounter());
+    print("Button", btn.id, "PRESSED", btn.getPressCounter());
+  } else if (ev === ZenButton.EV_ON_PRESS_END) {
+    print("Button", btn.id, "RELESED after", btn.getPressDuration());
   }
 }
-Event.addHandler(ZenButton.EV_ON_CLICK, onBtnEvent, null);
-Event.addHandler(ZenButton.EV_ON_DBLCLICK, onBtnEvent, null);
-Event.addHandler(ZenButton.EV_ON_PRESS, onBtnEvent, null);
+Event.addGroupHandler(ZenButton.EV_ON_ANY, onBtnEvent, null);
 ```
 ### ZenButton.create()
 ```js
@@ -262,20 +266,18 @@ Creates and initializes the switch instance. Returns the instance, or `null` on 
 **Button configuration properties**
 ```js
 {
-  clickTicks: 140,
-  dblclickDelayTicks: 160,
-  pressTicks: 1500,         //1.5s
-  pressRepeatTicks: 1500,   //1.5s
-  pressTimeout: 15000       //15s
+  clickTicks: 600,          //ms
+  pressTicks: 1000,         //1s
+  pressRepeatTicks: 1000,   //1s
+  debounceTicks: 50         //ms
 }
 ```
 |Property|Type||
 |--|--|--|
-|clickTicks|numeric|Optional. Single click duration, in milliseconds. Default value 140ms.|
-|dblclickDelayTicks|numeric|Optional. The delay between the two double-click clicks, in milliseconds. Default value 160ms.|
-|pressTicks|numeric|Optional. Press duration, in milliseconds. Default value 1.5s.|
-|pressRepeatTicks|numeric|Optional. Interval in milliseconds, for raising multiple `ZenButton.EV_ON_PRESS` events, subsequent to the first one. Set to `0` to disable event repetition. Default value 1.5s.|
-|pressTimeout|numeric|Optional. Maximum time, in milliseconds, the button can stay pressed. When the timeout expires, the button is reset. Set to `0` to disable the timeout. Default value 15s.|
+|clickTicks|numeric|Optional. Single click duration, in milliseconds. Default value 600ms.|
+|pressTicks|numeric|Optional. Press duration, in milliseconds. Default value 1s.|
+|pressRepeatTicks|numeric|Optional. Interval in milliseconds, for raising multiple `ZenButton.EV_ON_PRESS` events, subsequent to the first one. Set to `0` to disable event repetition. Default value 1s.|
+|debounceTicks|numeric|Optional. Debouncing time, in milliseconds, Set to `0` to disable it. Default value 50ms.|
 
 **Button instance properties** - The created instance has following properties.
 |Property|Type||
