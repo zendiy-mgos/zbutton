@@ -121,35 +121,6 @@ void mgos_zbutton_close(struct mgos_zbutton *handle) {
   mgos_zthing_close(MGOS_ZTHING_CAST(h));
 }
 
-// static void mg_zbutton_press_timer_cb(void *arg) {
-//   if (!arg) return;
-  
-//   struct mg_zbutton *h = (struct mg_zbutton *)arg;
-//   if (h->state == ZBUTTON_STATE_FIRST_DOWN) {
-//     LOG(LL_DEBUG, ("Running into the long-press timer ('%s')", h->id));
-//     // Start the press-repeat timer
-//     if (h->cfg.press_repeat_ticks > 0) {
-//       h->tick_timer_id = mgos_set_timer(h->cfg.press_ticks, MGOS_TIMER_REPEAT, mg_zbutton_press_timer_cb, h);
-//       if (h->tick_timer_id == MGOS_INVALID_TIMER_ID) {
-//         LOG(LL_ERROR, ("Unable to start long-press repeat timer. The long-press repeat feature won't work properly."));
-//       }
-//     } else {
-//       h->tick_timer_id = MGOS_INVALID_TIMER_ID;
-//     }
-//     h->state = ZBUTTON_STATE_PRESS;
-//   }
-
-//   bool timeout = (h->last_btndown_time > 0 ? (((mgos_uptime_micros() - h->last_btndown_time) / 1000) >= h->cfg.press_timeout) : false);
-//   if ((h->state != ZBUTTON_STATE_PRESS) || timeout) {
-//     mgos_zbutton_reset(MGOS_ZBUTTON_CAST(h));
-//     return;
-//   }
-
-//   ++h->press_counter;
-//   LOG(LL_DEBUG, ("Triggering ON_PRESS event #%d ('%s')", h->press_counter, h->id));
-//   mgos_event_trigger(MGOS_EV_ZBUTTON_ON_PRESS, h);
-// }
-
 static void mg_zbutton_tick_cb(void *arg) {
   if (!arg) return;
   

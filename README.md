@@ -185,7 +185,7 @@ Returns `true` if the button has been pressed (long-press), otherwise `false`.
 ```c
 int mgos_zbutton_press_duration_get(struct mgos_zbutton *handle);
 ```
-Returns how long the button has been pressed (in milliseconds). Returns `-1` if the button is not still pressed (long-press).
+Returns how long the button has been pressed (in milliseconds). Returns `0` if the button is not pressed (long-press).
 
 |Parameter||
 |--|--|
@@ -194,7 +194,7 @@ Returns how long the button has been pressed (in milliseconds). Returns `-1` if 
 ```c
 int mgos_zbutton_press_counter_get(struct mgos_zbutton *handle);
 ```
-Returns the counter since the button has been pressed (long-press). Returns `-1` if the button is not still pressed. The counther is increased every `press_repeat_ticks` milliseconds, if a configuration value greater than 0(zero) was provided.
+Returns `0` if the button is not pressed. Otherwise, it returns `1` or the counter since the button has been pressed (long-press). The counter is increased every `press_repeat_ticks` milliseconds if value greater than 0(zero) was provided.
 
 |Parameter||
 |--|--|
@@ -308,12 +308,12 @@ Returns `true` if the button has been pressed (long-press), otherwise `false`.
 ```js
 let duration = btn.getPressDuration(); //milliseconds
 ```
-Returns how long the button has been pressed (in milliseconds). Returns `-1` if the button is not still pressed (long-press).
+Returns how long the button has been pressed (in milliseconds). Returns `0` if the button is not pressed (long-press).
 ### .getPressCounter()
 ```js
 let counter = btn.getPressCounter();
 ```
-Returns the counter since the button has been pressed (long-press). Returns `-1` if the button is not still pressed. The counther is increased every `pressRepeatTicks` milliseconds, if a configuration value greater than 0(zero) was provided.
+Returns `0` if the button is not pressed. Otherwise, it returns `1` or the counter since the button has been pressed (long-press). The counter is increased every `press_repeat_ticks` milliseconds if value greater than 0(zero) was provided.
 ## Additional resources
 Take a look to some other samples or libraries.
 
