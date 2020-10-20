@@ -36,8 +36,6 @@ struct mgos_zbutton {
   MGOS_ZBUTTON_BASE
 };
 
-struct mg_zbutton;
-
 #define MGOS_ZBUTTON_CAST(h) ((struct mgos_zbutton *)h)
 
 #define MGOS_ZBUTTON_DEFAULT_CLICK_TICKS 600 //milliseconds
@@ -81,6 +79,8 @@ int mgos_zbutton_press_counter_get(struct mgos_zbutton *handle);
 void mgos_zbutton_reset(struct mgos_zbutton *handle);
 
 void mgos_zbutton_close(struct mgos_zbutton *handle);
+
+void mgos_zbutton_cfg_get(struct mgos_zbutton *handle, struct mgos_zbutton_cfg *cfg);
 
 #ifdef __cplusplus
 }

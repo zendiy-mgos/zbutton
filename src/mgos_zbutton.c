@@ -121,6 +121,17 @@ void mgos_zbutton_close(struct mgos_zbutton *handle) {
   mgos_zthing_close(MGOS_ZTHING_CAST(h));
 }
 
+void mgos_zbutton_cfg_get(struct mgos_zbutton *handle, struct mgos_zbutton_cfg *cfg) {
+  if (handle && cfg) {
+    struct mg_zbutton *h = MG_ZBUTTON_CAST(handle);
+    cfg->click_ticks = h->cfg.click_ticks;
+    cfg->press_ticks = h->cfg.press_ticks;
+    cfg->press_repeat_ticks = h->cfg.press_repeat_ticks;
+    cfg->debounce_ticks = h->cfg.debounce_ticks;
+  }
+}
+
+
 static void mg_zbutton_tick_cb(void *arg) {
   if (!arg) return;
   

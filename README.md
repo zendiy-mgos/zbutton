@@ -127,7 +127,7 @@ Button configuration values (e.g.: used by `mgos_zbutton_create()`).
 |click_ticks|Single click duration, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_CLICK_TICKS` to use the default duration (600ms).|
 |press_ticks|Press duration, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TICKS ` to use the default duration (1s).|
 |press_repeat_ticks|Interval in milliseconds, for raising multiple `MGOS_EV_ZBUTTON_ON_PRESS` events, subsequent to the first one. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_PRESS_TICKS` to use the default interval (1s). Set to `0` to disable event repetition.|
-|debounce_ticks|Debouncing time, in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_DEBOUNCE_TIMEOUT` to use the default timeout (50ms). Set to `0` to disable it.|
+|debounce_ticks|Debounce interval in milliseconds. Set to `-1` or to `MGOS_ZBUTTON_DEFAULT_DEBOUNCE_TICKS` to use the default timeout (50ms). Set to `0` to disable it.|
 
 **Example** - Create and initialize configuration settings.
 ```c
@@ -147,13 +147,18 @@ Creates and initializes the button instance. Returns the instance handle, or `NU
 
 **Example 1** - Create a button using default configuration values.
 ```c
-// click_ticks          => equals to MGOS_ZBUTTON_DEFAULT_CLICK_TICKS
-// press_ticks          => equals to MGOS_ZBUTTON_DEFAULT_PRESS_TICKS
-// press_repeat_ticks   => equals to MGOS_ZBUTTON_DEFAULT_PRESS_TICKS
-// debounce_ticks       => equals to MGOS_ZBUTTON_DEFAULT_DEBOUNCE_TICKS
-
 struct mgos_zbutton *btn = mgos_zbutton_create("btn-1", NULL);
 ```
+### mgos_zbutton_cfg_get()
+```c
+void mgos_zbutton_cfg_get(struct mgos_zbutton *handle, struct mgos_zbutton_cfg *cfg);
+```
+Returns current button's configuration.
+
+|Parameter||
+|--|--|
+|handle|Button handle.|
+|cfg|Current button's configuration as output.|
 ### mgos_zbutton_close()
 ```c
 void mgos_zbutton_close(struct mgos_zbutton *handle);
@@ -266,10 +271,10 @@ Creates and initializes the switch instance. Returns the instance, or `null` on 
 **Button configuration properties**
 ```js
 {
-  clickTicks: 600,          //ms
-  pressTicks: 1000,         //1s
-  pressRepeatTicks: 1000,   //1s
-  debounceTicks: 50         //ms
+  clickTicks: 600,          //default (ms)
+  pressTicks: 1000,         //default (ms)
+  pressRepeatTicks: 1000,   //default (ms)
+  debounceTicks: 50         //default (ms)
 }
 ```
 |Property|Type||
@@ -277,7 +282,7 @@ Creates and initializes the switch instance. Returns the instance, or `null` on 
 |clickTicks|numeric|Optional. Single click duration, in milliseconds. Default value 600ms.|
 |pressTicks|numeric|Optional. Press duration, in milliseconds. Default value 1s.|
 |pressRepeatTicks|numeric|Optional. Interval in milliseconds, for raising multiple `ZenButton.EV_ON_PRESS` events, subsequent to the first one. Set to `0` to disable event repetition. Default value 1s.|
-|debounceTicks|numeric|Optional. Debouncing time, in milliseconds, Set to `0` to disable it. Default value 50ms.|
+|debounceTicks|numeric|Optional. Debounce interval in milliseconds. Set to `0` to disable it. Default value 50ms.|
 
 **Button instance properties** - The created instance has following properties.
 |Property|Type||
