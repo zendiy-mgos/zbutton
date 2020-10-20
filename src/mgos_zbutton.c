@@ -91,7 +91,7 @@ int mgos_zbutton_press_duration_get(struct mgos_zbutton *handle) {
 }
 
 int mgos_zbutton_press_counter_get(struct mgos_zbutton *handle) {
-  return (!mgos_zbutton_is_pressed(handle) 0 : MG_ZBUTTON_CAST(handle)->press_counter);
+  return (!mgos_zbutton_is_pressed(handle) ? 0 : MG_ZBUTTON_CAST(handle)->press_counter);
 }
 
 bool mgos_zbutton_is_pressed(struct mgos_zbutton *handle) {
