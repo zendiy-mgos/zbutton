@@ -87,11 +87,11 @@ struct mgos_zbutton *mgos_zbutton_create(const char *id,
 }
 
 int mgos_zbutton_press_duration_get(struct mgos_zbutton *handle) {
-  return (!handle ? -1 : ((MG_ZBUTTON_CAST(handle)->stop_time - MG_ZBUTTON_CAST(handle)->start_time) / 1000));
+  return (!mgos_zbutton_is_pressed(handle) ? 0 : ((MG_ZBUTTON_CAST(handle)->stop_time - MG_ZBUTTON_CAST(handle)->start_time) / 1000));
 }
 
 int mgos_zbutton_press_counter_get(struct mgos_zbutton *handle) {
-  return (!handle ? -1 : MG_ZBUTTON_CAST(handle)->press_counter);
+  return (!mgos_zbutton_is_pressed(handle) 0 : MG_ZBUTTON_CAST(handle)->press_counter);
 }
 
 bool mgos_zbutton_is_pressed(struct mgos_zbutton *handle) {
@@ -157,9 +157,6 @@ static void mg_zbutton_tick_cb(void *arg) {
         // The button was released for the firt time.
         h->state = ZBUTTON_STATE_FIRST_UP;
         h->stop_time = now;
-
-        LOG(LL_DEBUG, ("Triggering ON_UP event ('%s')", h->id));
-        mgos_event_trigger(MGOS_EV_ZBUTTON_ON_UP, h);
       }
     } else if (h->state_req == ZBUTTON_STATE_DOWN) {
       if (start_ticks > h->cfg.press_ticks) {
@@ -176,13 +173,11 @@ static void mg_zbutton_tick_cb(void *arg) {
   } else if (h->state == ZBUTTON_STATE_FIRST_UP) {
     // waiting for button being pressed the second time or timeout.
     if (((now - h->start_time) / 1000) > h->cfg.click_ticks) {
-      LOG(LL_DEBUG, ("Triggering ON_UP event ('%s')", h->id));
-      mgos_event_trigger(MGOS_EV_ZBUTTON_ON_UP, h);
-
+      mgos_zbutton_reset(MGOS_ZBUTTON_CAST(h)); // restart
+      
       LOG(LL_DEBUG, ("Triggering ON_CLICK event ('%s')", h->id));
       mgos_event_trigger(MGOS_EV_ZBUTTON_ON_CLICK, h);
 
-      mgos_zbutton_reset(MGOS_ZBUTTON_CAST(h)); // restart
     } else if (h->state_req == ZBUTTON_STATE_DOWN) {
       if (h->cfg.debounce_ticks == 0 || ((now - h->stop_time) / 1000) > h->cfg.debounce_ticks) {
         h->state = ZBUTTON_STATE_SECOND_DOWN;
@@ -197,12 +192,10 @@ static void mg_zbutton_tick_cb(void *arg) {
       if (((now - h->start_time) / 1000) > h->cfg.debounce_ticks) {
         // this was a 2 click sequence.
         h->stop_time = now;
-        h->state = ZBUTTON_STATE_UP;
+        mgos_zbutton_reset(MGOS_ZBUTTON_CAST(h)); // restart
 
         LOG(LL_DEBUG, ("Triggering ON_DBLCLICK event ('%s')", h->id));
         mgos_event_trigger(MGOS_EV_ZBUTTON_ON_DBLCLICK, h);
-        
-        mgos_zbutton_reset(MGOS_ZBUTTON_CAST(h)); // restart
       }
     }
 
@@ -213,7 +206,6 @@ static void mg_zbutton_tick_cb(void *arg) {
     if (h->state_req == ZBUTTON_STATE_UP) {
       // The button is released after a long press
       h->stop_time = now;
-      h->state = ZBUTTON_STATE_UP;
       
       LOG(LL_DEBUG, ("Triggering ON_PRESS_END event ('%s')", h->id));
       mgos_event_trigger(MGOS_EV_ZBUTTON_ON_PRESS_END, h);   
