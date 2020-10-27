@@ -3,8 +3,7 @@
 Mongoose-OS library for ZenButtons ecosystem.
 
 ## GET STARTED
-Build up your own device in few minutes just starting from the following sample.
-Include the library into your `mos.yml` file.
+Build up your own device in few minutes just starting from the following sample. Start including following libraries into your `mos.yml` file.
 ```yaml
 libs:
   - origin: https://github.com/zendiy-mgos/zbutton-gpio
@@ -103,19 +102,44 @@ enum mgos_zbutton_event {
   MGOS_EV_ZBUTTON_ON_PRESS_END
 };
 ```
-Button events. They can be classified in 2 different categories:
-- **Listening**: the button instance is litening to these events, and you can raise them using `mgos_event_trigger()` for driving the instance (e.g.: the [zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio) library uses these events for implementing gpio-based buttons ).
-- **Publishing**: the button instance publishes these events, so you can subcribe to them using `mgos_event_add_handler()` or `mgos_event_add_group_handler()`.
+A button instance publishes following events, so you can subcribe to them using `mgos_event_add_handler()` or `mgos_event_add_group_handler()`.
+|Event||
+|--|--|
+|MGOS_EV_ZBUTTON_ON_ANY|Subscribe to this event using `mgos_event_add_group_handler()` for listening to all events.|
+|MGOS_EV_ZBUTTON_ON_CLICK|Published when the button is clicked (single-click).|
+|MGOS_EV_ZBUTTON_ON_DBLCLICK|Published when the button is double-clicked.|
+|MGOS_EV_ZBUTTON_ON_PRESS|Published when the button is long-pressed.|
+|MGOS_EV_ZBUTTON_ON_PRESS_END|Published when the button is not long-pressed anymore.|
 
-|Event|Type||
-|--|--|--|
-|MGOS_EV_ZBUTTON_ON_ANY|PUBLISHING|Subscribe to this event using `mgos_event_add_group_handler()`.|
-|MGOS_EV_ZBUTTON_ON_DOWN|LISTENING|Send this event to the button instance when the phisical button of your device is pushed down.|
-|MGOS_EV_ZBUTTON_ON_UP|LISTENING|Send this event to the button instance when the phisical button of your device is released.|
-|MGOS_EV_ZBUTTON_ON_CLICK|PUBLISHING|Published when the button is clicked (single-click).|
-|MGOS_EV_ZBUTTON_ON_DBLCLICK|PUBLISHING|Published when the button is double-clicked.|
-|MGOS_EV_ZBUTTON_ON_PRESS|PUBLISHING|Published when the button is long-pressed.|
-|MGOS_EV_ZBUTTON_ON_PRESS_END|PUBLISHING|Published when the button is not long-pressed anymore.|
+If you are not using a driver library like [zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio), you must notify to the button instance status changes of the physical button. You can do that sending proper events to the button instance.
+|Event||
+|--|--|
+|MGOS_EV_ZBUTTON_ON_DOWN|Send this event when the physical button is pushed down.|
+|MGOS_EV_ZBUTTON_ON_UP|Send this event when the physical button is released.|
+
+```c
+// Example: send events to the button instance according the
+// status of the physical button connected to the GPIO 14
+
+#include "mgos.h"
+#include "mgos_gpio.h"
+#include "mgos_zbutton.h"
+
+void mg_zbutton_gpio_button_handler_cb(int pin, void *arg) {
+  struct mgos_zbutton *handle = (struct mgos_zbutton *)arg;
+  bool gpio_val = mgos_gpio_read(pin);  
+  mgos_event_trigger(gpio_val ? MGOS_EV_ZBUTTON_ON_DOWN : MGOS_EV_ZBUTTON_ON_UP, handle);
+  LOG(LL_DEBUG, ("Triggering button %s on pin %d ('%s').", gpio_val ? "DOWN" : "UP", pin, handle->id));
+}
+
+/* Create button using defualt configuration. */
+struct mgos_zbutton_cfg cfg = MGOS_ZBUTTON_CFG;
+struct mgos_zbutton *btn = mgos_zbutton_create("btn1", &cfg);
+
+mgos_gpio_set_button_handler(14, MGOS_GPIO_PULL_DOWN,
+  MGOS_GPIO_INT_EDGE_ANY, cfg.debounce_ticks,
+  mg_zbutton_gpio_button_handler_cb, btn);
+```
 ### mgos_zbutton
 ```c
 struct mgos_zbutton {
@@ -246,19 +270,20 @@ ZenButton.EV_ON_DBLCLICK
 ZenButton.EV_ON_PRESS
 ZenButton.EV_ON_PRESS_END
 ```
-Button events. They can be classified in 2 different categories:
-- **Listening**: the button instance is litening to these events, and you can raise them using `Event.trigger()` for driving the instance (e.g.: the [zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio) library uses these events for implementing gpio-based buttons ).
-- **Publishing**: the button instance publishes these events, so you can subcribe to them using `Event.addHandler()` or `Event.addGroupHandler()`.
+A button instance publishes following events, so you can subcribe to them using `Event.addHandler()` or `Event.addGroupHandler()`.
+|Event||
+|--|--|
+|EV_ON_ANY|Subscribe to this event using `Event.addGroupHandler()` for listening to all events.|
+|EV_ON_CLICK|Published when the button is clicked (single-click).|
+|EV_ON_DBLCLICK|Published when the button is double-clicked.|
+|EV_ON_PRESS|Published when the button is long-pressed.|
+|EV_ON_PRESS_END|Published when the button is not long-pressed anymore.|
 
-|Event|Type||
-|--|--|--|
-|EV_ON_ANY|PUBLISHING|Subscribe to this event using `Event.addGroupHandler()`.|
-|EV_ON_DOWN|LISTENING|Send this event to the button instance when the phisical button of your device is pushed down.|
-|EV_ON_UP|LISTENING|Send this event to the button instance when the phisical button of your device is released.|
-|EV_ON_CLICK|PUBLISHING|Published when the button is clicked (single-click).|
-|EV_ON_DBLCLICK|PUBLISHING|Published when the button is double-clicked.|
-|EV_ON_PRESS|PUBLISHING|Published when the button is long-pressed.|
-|EV_ON_PRESS_END|PUBLISHING|Published when the button is not long-pressed anymore.|
+If you are not using a driver library like [zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio), you must notify to the button instance status changes of the physical button. You can do that sending proper events to the button instance.
+|Event||
+|--|--|
+|EV_ON_DOWN|LISTENING|Send this event when the physical button is pushed down.|
+|EV_ON_UP|LISTENING|Send this event when the physical button is released.|
 ### ZenButton.create()
 ```js
 let btn = ZenButton.create(id, cfg);
