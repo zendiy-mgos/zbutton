@@ -3,20 +3,92 @@
 Mongoose-OS library for ZenButtons ecosystem.
 
 ## GET STARTED
-Build up your own device in few minutes just starting from one of the following samples.
-
-|Sample|Notes|
-|--|--|
-|[zbutton-mqtt-demo](https://github.com/zendiy-mgos/zbutton-mqtt-demo)|Mongoose-OS demo firmware that uses ZenButtons ecosystem for publishing pushbutton events as MQTT messages.|
-## Usage
+Build up your own device in few minutes just starting from the following sample.
 Include the library into your `mos.yml` file.
 ```yaml
 libs:
-  - origin: https://github.com/zendiy-mgos/zbutton
+  - origin: https://github.com/zendiy-mgos/zbutton-gpio
 ```
-If you are developing a JavaScript firmware, load `api_zbutton.js` in your `init.js` file.
+**C/C++ sample code**
+```c
+#include "mgos.h"
+#include "mgos_zbutton_gpio.h"
+
+void mg_btn_on_event_cb(int ev, void *ev_data, void *ud) {
+  struct mgos_zbutton *handle = (struct mgos_zbutton *)ev_data;
+  if (handle) {
+    if (ev == MGOS_EV_ZBUTTON_ON_CLICK) {
+      // Do something here...
+      LOG(LL_INFO, ("Button '%s' CLICKED", handle->id));
+    } else if (ev == MGOS_EV_ZBUTTON_ON_DBLCLICK) {
+      // Do something here...
+      LOG(LL_INFO, ("Button '%s' DOUBLE-CLICKED", handle->id));
+    } else if (ev == MGOS_EV_ZBUTTON_ON_PRESS) {
+      // Do something here...
+      LOG(LL_INFO, ("Button '%s' PRESSED (count #%d)", handle->id,
+        mgos_zbutton_press_counter_get(handle)));
+    } else if (ev == MGOS_EV_ZBUTTON_ON_PRESS_END) {
+      // Do something here...
+      LOG(LL_INFO, ("Button '%s' RELEASED (pressed for %dms)", handle->id,
+        mgos_zbutton_press_duration_get(handle)));
+    }
+  }
+  (void) ud;
+}
+
+enum mgos_app_init_result mgos_app_init(void) {
+  /* Create button using defualt configuration. */
+  struct mgos_zbutton_cfg cfg = MGOS_ZBUTTON_CFG;
+  struct mgos_zbutton *btn1 = mgos_zbutton_create("btn1", &cfg);
+  
+  if (btn1) {
+    /* Attach button to GPIO 14. */
+    struct mgos_zbutton_gpio_cfg gpio_cfg = MGOS_ZBUTTON_GPIO_CFG;  
+    if (mgos_zbutton_gpio_attach(btn1, 14, &gpio_cfg)) {
+      if (mgos_event_add_group_handler(MGOS_EV_ZBUTTON_ON_ANY, mg_btn_on_event_cb, NULL)) {
+        return MGOS_APP_INIT_SUCCESS;
+      }
+      mgos_zbutton_gpio_detach(btn1);
+    }
+    mgos_zbutton_close(btn1);
+  }
+  return MGOS_APP_INIT_ERROR;
+}
+```
+**JavaScript sample code**
+
 ```js
-load('api_zbutton.js');
+load("api_events.js")
+load("api_zbutton_gpio.js")
+
+function onBtnEvent(ev, evdata, ud) {
+  let btn = ZenThing.getFromHandle(evdata);
+  if (ev === ZenButton.EV_ON_CLICK) {
+    // Do something here...
+    print("Button", btn.id, "CLICKED");
+  } else if (ev === ZenButton.EV_ON_DBLCLICK) {
+    // Do something here...
+    print("Button", btn.id, "DOUBLE-CLICKED");
+  } else if (ev === ZenButton.EV_ON_PRESS) {
+    // Do something here...
+    print("Button", btn.id, "PRESSED", btn.getPressCounter());
+  } else if (ev === ZenButton.EV_ON_PRESS_END) {
+    // Do something here...
+    print("Button", btn.id, "RELESED after", btn.getPressDuration(), "(ms)");
+  }
+}
+
+/* Create button using defualt configuration. */
+let btn1 = ZenButton.create('btn1');
+
+if (btn1) {
+  /* Attach button to GPIO 14. */
+  if (!btn1.GPIO.attach(14)) {
+    btn1.close();
+  } else {
+    Event.addGroupHandler(ZenButton.EV_ON_ANY, onBtnEvent, null);
+  }
+}
 ```
 ## C/C++ API Reference
 ### mgos_zbutton_event
@@ -44,42 +116,6 @@ Button events. They can be classified in 2 different categories:
 |MGOS_EV_ZBUTTON_ON_DBLCLICK|PUBLISHING|Published when the button is double-clicked.|
 |MGOS_EV_ZBUTTON_ON_PRESS|PUBLISHING|Published when the button is long-pressed.|
 |MGOS_EV_ZBUTTON_ON_PRESS_END|PUBLISHING|Published when the button is not long-pressed anymore.|
-
-**Example 1** - A pushbutton on pin 14 sends its state to the button instance.
-```c
-void mg_zbutton_gpio_button_handler_cb(int pin, void *arg) {
-  struct mgos_zbutton *handle = (struct mgos_zbutton *)arg;
-  bool gpio_val = mgos_gpio_read(pin);  
-  mgos_event_trigger(gpio_val ? MGOS_EV_ZBUTTON_ON_DOWN : MGOS_EV_ZBUTTON_ON_UP, handle);
-  LOG(LL_DEBUG, ("Triggering button %s on pin %d ('%s').", gpio_val ? "DOWN" : "UP", pin, handle->id));
-}
-
-struct mgos_zbutton *btn = mgos_zbutton_create("btn-1", NULL);
-// Set the pushbutton handler
-mgos_gpio_set_button_handler(14, MGOS_GPIO_PULL_UP, MGOS_GPIO_INT_EDGE_ANY,
-  50, mg_zbutton_gpio_button_handler_cb, btn);
-```
-**Example 2** - Subscribe to the button events.
-```c
-void mg_btn_on_event_cb(int ev, void *ev_data, void *ud) {
-  struct mgos_zbutton *handle = (struct mgos_zbutton *)ev_data;
-  if (handle) {
-    if (ev == MGOS_EV_ZBUTTON_ON_CLICK) {
-      LOG(LL_INFO, ("Button '%s' CLICKED", handle->id));
-    } else if (ev == MGOS_EV_ZBUTTON_ON_DBLCLICK) {
-      LOG(LL_INFO, ("Button '%s' DOUBLE-CLICKED", handle->id));
-    } else if (ev == MGOS_EV_ZBUTTON_ON_PRESS) {
-      LOG(LL_INFO, ("Button '%s' PRESSED (#%d)", handle->id,
-        mgos_zbutton_press_counter_get(handle)));
-    } else if (ev == MGOS_EV_ZBUTTON_ON_PRESS_END) {
-      LOG(LL_INFO, ("Button '%s' RELEASED (pressed for %dms)", handle->id,
-        mgos_zbutton_press_duration_get(handle)));
-    }
-  }
-  (void) ud;
-}
-mgos_event_add_group_handler(MGOS_EV_ZBUTTON_ON_ANY, mg_btn_on_event_cb, NULL);
-```
 ### mgos_zbutton
 ```c
 struct mgos_zbutton {
@@ -143,12 +179,7 @@ Creates and initializes the button instance. Returns the instance handle, or `NU
 |Parameter||
 |--|--|
 |id|Unique ZenThing ID.|
-|cfg|Optional. Button configuration. If `NULL`, default configuration values are used.|
-
-**Example 1** - Create a button using default configuration values.
-```c
-struct mgos_zbutton *btn = mgos_zbutton_create("btn-1", NULL);
-```
+|cfg|Optional. [Button configuration](https://github.com/zendiy-mgos/zbutton#mgos_zbutton_cfg). If `NULL`, default configuration values are used.|
 ### mgos_zbutton_cfg_get()
 ```c
 void mgos_zbutton_cfg_get(struct mgos_zbutton *handle, struct mgos_zbutton_cfg *cfg);
@@ -228,35 +259,6 @@ Button events. They can be classified in 2 different categories:
 |EV_ON_DBLCLICK|PUBLISHING|Published when the button is double-clicked.|
 |EV_ON_PRESS|PUBLISHING|Published when the button is long-pressed.|
 |EV_ON_PRESS_END|PUBLISHING|Published when the button is not long-pressed anymore.|
-
-**Example 1** - A pushbutton on pin 14 sends its state to the button instance.
-```js
-let btn1 = ZenButton.create('btn-1');
-// Set the pushbutton handler
-GPIO.set_button_handler(14, GPIO.PULL_UP, GPIO.INT_EDGE_ANY, 50,
-function(pin, btn) {
-  let gpioVal = GPIO.read(pin);
-  let handle = ZenThing.getHandle(btn);
-  Event.trigger((gpioVal ? ZenButton.EV_ZBUTTON_DOWN : ZenButton.EV_ZBUTTON_UP), handle);
-  print("Triggering", btn.id, "button", (gpioVal ? "DOWN" : "UP"), "on pin", pin);
-}, btn1);
-```
-**Example 2** - Subscribe to the button events.
-```js
-function onBtnEvent(ev, evdata, ud) {
-  let btn = ZenThing.getFromHandle(evdata);
-  if (ev === ZenButton.EV_ON_CLICK) {
-    print("Button", btn.id, "CLICKED");
-  } else if (ev === ZenButton.EV_ON_DBLCLICK) {
-    print("Button", btn.id, "DOUBLE-CLICKED");
-  } else if (ev === ZenButton.EV_ON_PRESS) {
-    print("Button", btn.id, "PRESSED", btn.getPressCounter());
-  } else if (ev === ZenButton.EV_ON_PRESS_END) {
-    print("Button", btn.id, "RELESED after", btn.getPressDuration());
-  }
-}
-Event.addGroupHandler(ZenButton.EV_ON_ANY, onBtnEvent, null);
-```
 ### ZenButton.create()
 ```js
 let btn = ZenButton.create(id, cfg);
@@ -266,17 +268,9 @@ Creates and initializes the switch instance. Returns the instance, or `null` on 
 |Parameter|Type||
 |--|--|--|
 |id|string|Unique ZenThing ID.|
-|cfg|object|Optional. Button configuration. If missing, default configuration values are used. For more details see *'Button configuration properties'* below.|
+|cfg|object|Optional. Button configuration. If missing, default configuration values are used. For more details see 'Button configuration properties' below.<br><br>{&nbsp;clickTicks: 600,<br>&nbsp;&nbsp;pressTicks: 1000,<br>&nbsp;&nbsp;pressRepeatTicks: 1000,<br>&nbsp;&nbsp;debounceTicks: 50&nbsp;}|
 
 <a name="js_zbutton_cfg"></a>**Button configuration properties**
-```js
-{
-  clickTicks: 600,          //default (ms)
-  pressTicks: 1000,         //default (ms)
-  pressRepeatTicks: 1000,   //default (ms)
-  debounceTicks: 50         //default (ms)
-}
-```
 |Property|Type||
 |--|--|--|
 |clickTicks|numeric|Optional. Single click duration, in milliseconds. Default value 600ms.|
@@ -326,3 +320,4 @@ Take a look to some other samples or libraries.
 |--|--|--|
 |[zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio)|Library|Mongoose-OS library for attaching ZenButtons to gpio-based pushbuttons.|
 |[zbutton-mqtt](https://github.com/zendiy-mgos/zbutton-mqtt)|Library|Mongoose-OS library for publishing ZenButtons events as MQTT messages.|
+|[zbutton-mqtt-demo](https://github.com/zendiy-mgos/zbutton-mqtt-demo)|Firmware|Mongoose-OS demo firmware that uses ZenButtons ecosystem for publishing pushbutton events as MQTT messages.|
