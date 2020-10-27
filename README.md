@@ -282,8 +282,8 @@ A button instance publishes following events, so you can subcribe to them using 
 If you are not using a driver library like [zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio), you must notify to the button instance status changes of the physical button. You can do that sending proper events to the button instance.
 |Event||
 |--|--|
-|EV_ON_DOWN|LISTENING|Send this event when the physical button is pushed down.|
-|EV_ON_UP|LISTENING|Send this event when the physical button is released.|
+|EV_ON_DOWN|Send this event when the physical button is pushed down.|
+|EV_ON_UP|Send this event when the physical button is released.|
 ### ZenButton.create()
 ```js
 let btn = ZenButton.create(id, cfg);
