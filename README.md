@@ -176,7 +176,7 @@ Button state. Use `mgos_zbutton_state_get()` to get the current state of the but
 
 |State||
 |--|--|
-|ZBUTTON_STATE_UP|Default state. The button is released, in its normal state.|
+|ZBUTTON_STATE_UP|Default state. The button is released (normal state).|
 |ZBUTTON_STATE_DOWN|The button is pushed down for the firts time.|
 |ZBUTTON_STATE_FIRST_UP|The button is released after firts down. The first click occurred.|
 |ZBUTTON_STATE_SECOND_DOWN|The button is pushed down after the first click. The second click is starting.|
@@ -250,22 +250,21 @@ Returns `0` if the button is not long-pressed. Otherwise, it returns `1` or the 
 ```c
 enum mgos_zbutton_state mgos_zbutton_state_get(struct mgos_zbutton *handle);
 ```
-Returns the current state of the button instance.
+Returns the current [state](https://github.com/zendiy-mgos/zbutton#mgos_zbutton_state) of the button instance.
 
 |Parameter||
 |--|--|
 |handle|Button handle.|
 ### mgos_zbutton_push_state_set()
 ```c
-bool mgos_zbutton_push_state_set(struct mgos_zbutton *handle,
-                                 enum mgos_zbutton_state state);
+bool mgos_zbutton_push_state_set(struct mgos_zbutton *handle, enum mgos_zbutton_state state);
 ```
 Sets the push state of the button instance. Use this function to set the push state accoring the status of the physical button. Returns `true` if the push state is successfully set, otherwise `false`.
 
 |Parameter||
 |--|--|
 |handle|Button handle.|
-|state|State to set. Allowed values are: ZBUTTON_STATE_UP and ZBUTTON_STATE_DOWN.|
+|state|State to set. Allowed values are: `ZBUTTON_STATE_UP` and `ZBUTTON_STATE_DOWN`.|
 
 ```c
 // Example: set the push state according the status of the 
@@ -300,6 +299,23 @@ A button instance publishes following events, so you can subcribe to them using 
 |EV_ON_DBLCLICK|Published when the button is double-clicked.|
 |EV_ON_PRESS|Published when the button is long-pressed.|
 |EV_ON_PRESS_END|Published when the button is not long-pressed anymore.|
+### ZenButton states
+```js
+ZenButton.STATE.UP
+ZenButton.STATE.DOWN
+ZenButton.STATE.FIRST_UP
+ZenButton.STATE.SECOND_DOWN
+ZenButton.STATE.PRESSED
+```
+Button state. Use `getState()` to get the current state of the button, or use `setPushState()` to set the push state.
+
+|State||
+|--|--|
+|UP|Default state. The button is released (normal state).|
+|DOWN|The button is pushed down for the firts time.|
+|FIRST_UP|The button is released after firts down. The first click occurred.|
+|SECOND_DOWN|The button is pushed down after the first click. The second click is starting.|
+|PRESSED|The button is pushed down because a long-press.|
 ### ZenButton.create()
 ```js
 let btn = ZenButton.create(id, cfg);
@@ -314,16 +330,16 @@ Creates and initializes the switch instance. Returns the instance, or `null` on 
 <a name="js_zbutton_cfg"></a>**Button configuration properties**
 |Property|Type||
 |--|--|--|
-|clickTicks|numeric|Optional. Single click duration, in milliseconds. Default value 600ms.|
-|pressTicks|numeric|Optional. Long-press duration, in milliseconds. Default value 1s.|
-|pressRepeatTicks|numeric|Optional. Interval in milliseconds, for raising multiple `ZenButton.EV_ON_PRESS` events, subsequent to the first one. Set to `0` to disable event repetition. Default value 1s.|
-|debounceTicks|numeric|Optional. Debounce interval in milliseconds. Set to `0` to disable it. Default value 50ms.|
+|clickTicks|int|Optional. Single click duration, in milliseconds. Default value 600ms.|
+|pressTicks|int|Optional. Long-press duration, in milliseconds. Default value 1s.|
+|pressRepeatTicks|int|Optional. Interval in milliseconds, for raising multiple `ZenButton.EV_ON_PRESS` events, subsequent to the first one. Set to `0` to disable event repetition. Default value 1s.|
+|debounceTicks|int|Optional. Debounce interval in milliseconds. Set to `0` to disable it. Default value 50ms.|
 
 **Button instance properties** - The created instance has following properties.
 |Property|Type||
 |--|--|--|
 |id|string|Instance ID.|
-|type|numeric|Instance type. Fixed value: `ZenButton.THING_TYPE`.|
+|type|int|Instance type. Fixed value: `ZenButton.THING_TYPE`.|
 
 **Example 1** - Create a button using default configuration values.
 ```js
@@ -354,6 +370,33 @@ Returns how long the button has been long-pressed, in milliseconds. Returns `0` 
 let counter = btn.getPressCounter();
 ```
 Returns `0` if the button is not long-pressed. Otherwise, it returns `1` or the counter since the button has been long-pressed. The counter is increased every `pressRepeatTicks` milliseconds if value greater than `0` was provided (see [configuration properties](https://github.com/zendiy-mgos/zbutton#js_zbutton_cfg)).
+### .getState()
+```js
+let state = btn.getState();
+```
+Returns the current [state](https://github.com/zendiy-mgos/zbutton#zenbutton_states) of the button instance.
+### .setPushState()
+```js
+let success = btn.setPushState(state);
+```
+Sets the push state of the button instance. Use this function to set the push state accoring the status of the physical button. Returns `true` if the push state is successfully set, otherwise `false`.
+
+|Parameter|Type||
+|--|--|--|
+|state|int|State to set. Allowed values are: `ZenButton.STATE.UP` and `ZenButton.STATE.DOWN`.|
+
+```js
+// Example: set the push state according the status of the 
+// physical button connected to the GPIO 14
+
+let btn = ZenButton.create('btn-1');
+GPIO.set_button_handler(14, GPIO.PULL_UP, GPIO.INT_EDGE_ANY, 50,
+function(pin, handle) {
+  let val = GPIO.read(pin);
+  handle.setPushState(val ? ZenButton.STATE.DOWN : ZenButton.STATE.UP);
+  print('Triggering', (val ? 'DOWN' : 'UP'), ' the button', handle.id, 'on pin', pin);
+}, btn);
+```
 ## Additional resources
 Take a look to some other samples or libraries.
 
