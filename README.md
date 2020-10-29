@@ -122,7 +122,7 @@ Button handle. You can get a valid handle using `mgos_zbutton_create()`.
 |id|Handle unique ID.|
 |type|Handle type. Fixed value: `MGOS_ZTHING_BUTTON`.|
 
-**Example** - Use of handle fields.
+**Example** - Use of handle properties.
 ```c
 struct mgos_zbutton *handle = mgos_zbutton_create("btn-1", NULL);
 LOG(LL_INFO, ("ID '%s' detected.", handle->id));
@@ -189,7 +189,7 @@ Creates and initializes the button instance. Returns the instance handle, or `NU
 
 |Parameter||
 |--|--|
-|id|Unique ZenThing ID.|
+|id|Unique ID.|
 |cfg|Optional. [Button configuration](https://github.com/zendiy-mgos/zbutton#mgos_zbutton_cfg). If `NULL`, default configuration values are used.|
 ### mgos_zbutton_cfg_get()
 ```c
@@ -250,7 +250,7 @@ Returns `0` if the button is not long-pressed. Otherwise, it returns `1` or the 
 ```c
 enum mgos_zbutton_state mgos_zbutton_state_get(struct mgos_zbutton *handle);
 ```
-Returns the current [state](https://github.com/zendiy-mgos/zbutton#mgos_zbutton_state) of the button instance.
+Returns the current [state](https://github.com/zendiy-mgos/zbutton#mgos_zbutton_state) of the button.
 
 |Parameter||
 |--|--|
@@ -259,7 +259,7 @@ Returns the current [state](https://github.com/zendiy-mgos/zbutton#mgos_zbutton_
 ```c
 bool mgos_zbutton_push_state_set(struct mgos_zbutton *handle, enum mgos_zbutton_state state);
 ```
-Sets the push state of the button instance. Use this function to set the push state accoring the status of the physical button. Returns `true` if the push state is successfully set, otherwise `false`.
+Sets the push state of the button. Use this function to set the push state accoring the status of the physical button. Returns `true` if the push state is successfully set, otherwise `false`.
 
 |Parameter||
 |--|--|
@@ -291,7 +291,7 @@ ZenButton.EV_ON_DBLCLICK
 ZenButton.EV_ON_PRESS
 ZenButton.EV_ON_PRESS_END
 ```
-A button instance publishes following events, so you can subcribe to them using `Event.addHandler()` or `Event.addGroupHandler()`.
+A button publishes following events, so you can subcribe to them using `Event.addHandler()` or `Event.addGroupHandler()`.
 |Event||
 |--|--|
 |EV_ON_ANY|Subscribe to this event using `Event.addGroupHandler()` for listening to all events.|
@@ -320,11 +320,11 @@ Button state. Use `getState()` to get the current state of the button, or use `s
 ```js
 let btn = ZenButton.create(id, cfg);
 ```
-Creates and initializes the switch instance. Returns the instance, or `null` on error.
+Creates and initializes the button instance. Returns the instance, or `null` on error.
 
 |Parameter|Type||
 |--|--|--|
-|id|string|Unique ZenThing ID.|
+|id|string|Unique ID.|
 |cfg|object|Optional. Button configuration. If missing, default configuration values are used. For more details see 'Button configuration properties' below.<br><br>{&nbsp;clickTicks: 600,<br>&nbsp;&nbsp;pressTicks: 1000,<br>&nbsp;&nbsp;pressRepeatTicks: 1000,<br>&nbsp;&nbsp;debounceTicks: 50&nbsp;}|
 
 <a name="js_zbutton_cfg"></a>**Button configuration properties**
@@ -374,12 +374,12 @@ Returns `0` if the button is not long-pressed. Otherwise, it returns `1` or the 
 ```js
 let state = btn.getState();
 ```
-Returns the current [state](https://github.com/zendiy-mgos/zbutton#zenbutton_states) of the button instance.
+Returns the current [state](https://github.com/zendiy-mgos/zbutton#zenbutton-states) of the button.
 ### .setPushState()
 ```js
 let success = btn.setPushState(state);
 ```
-Sets the push state of the button instance. Use this function to set the push state accoring the status of the physical button. Returns `true` if the push state is successfully set, otherwise `false`.
+Sets the push state of the button. Use this function to set the push state accoring the status of the physical button. Returns `true` if the push state is successfully set, otherwise `false`.
 
 |Parameter|Type||
 |--|--|--|
