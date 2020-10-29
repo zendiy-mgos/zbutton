@@ -6,19 +6,11 @@
 #include "mjs.h"
 #endif /* MGOS_HAVE_MJS */
 
-enum mg_zbutton_state {
-  ZBUTTON_STATE_UP,
-  ZBUTTON_STATE_DOWN,
-  ZBUTTON_STATE_FIRST_UP,
-  ZBUTTON_STATE_SECOND_DOWN,
-  ZBUTTON_STATE_PRESSED
-};
-
 struct mg_zbutton {
   MGOS_ZBUTTON_BASE
   struct mgos_zbutton_cfg cfg;
-  enum mg_zbutton_state state;
-  enum mg_zbutton_state state_req;
+  enum mgos_zbutton_state state;
+  enum mgos_zbutton_state state_req;
   int64_t start_time;
   int64_t stop_time;
   int press_counter;
@@ -224,7 +216,11 @@ static void mg_zbutton_tick_cb(void *arg) {
     }
   }
 }
-         
+
+enum mgos_zbutton_state mgos_zbutton_state_get(struct mgos_zbutton *handle) {
+  return (!handle ? ZBUTTON_STATE_UP : MG_ZBUTTON_CAST(handle)->state);
+}
+
 void mg_zbutton_on_btndown(struct mg_zbutton *h) {
   h->state_req = ZBUTTON_STATE_DOWN;
   LOG(LL_DEBUG, ("Triggered BTN DOWN ('%s')", h->id));
@@ -235,16 +231,21 @@ void mg_zbutton_on_btnup(struct mg_zbutton *h) {
   LOG(LL_DEBUG, ("Triggered BTN UP ('%s')", h->id));
 }
 
-void mg_zbutton_events_cb(int ev, void *ev_data, void *userdata) {
-  if (ev_data != NULL) {
-    struct mg_zbutton *h = MG_ZBUTTON_CAST(ev_data);
-    if (ev == MGOS_EV_ZBUTTON_ON_DOWN) {
-      mg_zbutton_on_btndown(h);
-    } else if (ev == MGOS_EV_ZBUTTON_ON_UP) {
-      mg_zbutton_on_btnup(h);
-    }
+bool mgos_zbutton_push_state_set(struct mgos_zbutton *handle,
+                                 enum mgos_zbutton_state state) {
+  if (!handle) return false;
+  switch (state)
+  {
+    case ZBUTTON_STATE_UP:
+      mg_zbutton_on_btnup(MG_ZBUTTON_CAST(handle));
+      break;
+    case ZBUTTON_STATE_DOWN:
+      mg_zbutton_on_btndown(MG_ZBUTTON_CAST(handle));
+      break;
+    default:
+      return false;
   }
-  (void) userdata;
+  return true;
 }
 
 #ifdef MGOS_HAVE_MJS
@@ -272,11 +273,6 @@ bool mgos_zbutton_init() {
   if (!mgos_event_register_base(MGOS_ZBUTTON_EVENT_BASE, "ZenButton events")) {
     return false;
   }
-  if (!mgos_event_add_group_handler(MGOS_ZBUTTON_EVENT_BASE, mg_zbutton_events_cb, NULL)) {
-    return false;
-  }
-
-  //LOG(LL_INFO, ("MGOS_ZBUTTON_EVENT_BASE %d", MGOS_ZBUTTON_EVENT_BASE));
 
   return true;
 }

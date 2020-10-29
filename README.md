@@ -94,8 +94,6 @@ if (btn1) {
 ```c
 enum mgos_zbutton_event {
   MGOS_EV_ZBUTTON_ON_ANY,
-  MGOS_EV_ZBUTTON_ON_DOWN,
-  MGOS_EV_ZBUTTON_ON_UP,
   MGOS_EV_ZBUTTON_ON_CLICK,
   MGOS_EV_ZBUTTON_ON_DBLCLICK,
   MGOS_EV_ZBUTTON_ON_PRESS,
@@ -110,36 +108,6 @@ A button instance publishes following events, so you can subcribe to them using 
 |MGOS_EV_ZBUTTON_ON_DBLCLICK|Published when the button is double-clicked.|
 |MGOS_EV_ZBUTTON_ON_PRESS|Published when the button is long-pressed.|
 |MGOS_EV_ZBUTTON_ON_PRESS_END|Published when the button is not long-pressed anymore.|
-
-If you are not using a driver library like [zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio), you must notify to the button instance status changes of the physical button. You can do that sending proper events to the button instance.
-|Event||
-|--|--|
-|MGOS_EV_ZBUTTON_ON_DOWN|Send this event when the physical button is pushed down.|
-|MGOS_EV_ZBUTTON_ON_UP|Send this event when the physical button is released.|
-
-```c
-// Example: send events to the button instance according the
-// status of the physical button connected to the GPIO 14
-
-#include "mgos.h"
-#include "mgos_gpio.h"
-#include "mgos_zbutton.h"
-
-void mg_zbutton_gpio_button_handler_cb(int pin, void *arg) {
-  struct mgos_zbutton *handle = (struct mgos_zbutton *)arg;
-  bool gpio_val = mgos_gpio_read(pin);  
-  mgos_event_trigger(gpio_val ? MGOS_EV_ZBUTTON_ON_DOWN : MGOS_EV_ZBUTTON_ON_UP, handle);
-  LOG(LL_DEBUG, ("Triggering button %s on pin %d ('%s').", gpio_val ? "DOWN" : "UP", pin, handle->id));
-}
-
-/* Create button using defualt configuration. */
-struct mgos_zbutton_cfg cfg = MGOS_ZBUTTON_CFG;
-struct mgos_zbutton *btn = mgos_zbutton_create("btn1", &cfg);
-
-mgos_gpio_set_button_handler(14, MGOS_GPIO_PULL_DOWN,
-  MGOS_GPIO_INT_EDGE_ANY, cfg.debounce_ticks,
-  mg_zbutton_gpio_button_handler_cb, btn);
-```
 ### mgos_zbutton
 ```c
 struct mgos_zbutton {
@@ -194,6 +162,25 @@ Button configuration values (e.g.: used by `mgos_zbutton_create()`).
 // create and initialize cfg using defaults
 struct mgos_zbutton_cfg cfg = MGOS_ZBUTTON_CFG;
 ```
+### mgos_zbutton_state
+```c
+enum mgos_zbutton_state {
+  ZBUTTON_STATE_UP,
+  ZBUTTON_STATE_DOWN,
+  ZBUTTON_STATE_FIRST_UP,
+  ZBUTTON_STATE_SECOND_DOWN,
+  ZBUTTON_STATE_PRESSED
+};
+```
+Button state. Use `mgos_zbutton_state_get()` to get the current state of the button, or use `mgos_zbutton_push_state_set()` to set the push state.
+
+|State||
+|--|--|
+|ZBUTTON_STATE_UP|Default state. The button is released, in its normal state.|
+|ZBUTTON_STATE_DOWN|The button is pushed down for the firts time.|
+|ZBUTTON_STATE_FIRST_UP|The button is released after firts down. The first click occurred.|
+|ZBUTTON_STATE_SECOND_DOWN|The button is pushed down after the first click. The second click is starting.|
+|ZBUTTON_STATE_PRESSED|The button is pushed down because a long-press.|
 ### mgos_zbutton_create()
 ```c
 struct mgos_zbutton *mgos_zbutton_create(const char *id, struct mgos_zbutton_cfg *cfg);
@@ -259,12 +246,47 @@ Returns `0` if the button is not long-pressed. Otherwise, it returns `1` or the 
 |Parameter||
 |--|--|
 |handle|Button handle.|
+### mgos_zbutton_state_get()
+```c
+enum mgos_zbutton_state mgos_zbutton_state_get(struct mgos_zbutton *handle);
+```
+Returns the current state of the button instance.
+
+|Parameter||
+|--|--|
+|handle|Button handle.|
+### mgos_zbutton_push_state_set()
+```c
+bool mgos_zbutton_push_state_set(struct mgos_zbutton *handle,
+                                 enum mgos_zbutton_state state);
+```
+Sets the push state of the button instance. Use this function to set the push state accoring the status of the physical button. Returns `true` if the push state is successfully set, otherwise `false`.
+
+|Parameter||
+|--|--|
+|handle|Button handle.|
+|state|State to set. Allowed values are: ZBUTTON_STATE_UP and ZBUTTON_STATE_DOWN.|
+
+```c
+// Example: set the push state according the status of the 
+// physical button connected to the GPIO 14
+
+void mg_zbutton_gpio_button_handler_cb(int pin, void *arg) {
+  struct mgos_zbutton *handle = (struct mgos_zbutton *)arg;
+  bool gpio_val = mgos_gpio_read(pin);  
+  mgos_zbutton_push_state_set(handle, gpio_val ? ZBUTTON_STATE_DOWN : ZBUTTON_STATE_UP);
+  LOG(LL_INFO, ("Triggering button %s on pin %d ('%s').", gpio_val ? "DOWN" : "UP", pin, handle->id));
+}
+
+/* Create button using defualt configuration. */
+struct mgos_zbutton *btn = mgos_zbutton_create("btn1", NULL);
+mgos_gpio_set_button_handler(14, MGOS_GPIO_PULL_DOWN, MGOS_GPIO_INT_EDGE_ANY,
+  50, mg_zbutton_gpio_button_handler_cb, btn);
+```
 ## JS API Reference
 ### ZenButton events
 ```js
 ZenButton.EV_ON_ANY
-ZenButton.EV_ON_DOWN
-ZenButton.EV_ON_UP
 ZenButton.EV_ON_CLICK
 ZenButton.EV_ON_DBLCLICK
 ZenButton.EV_ON_PRESS
@@ -278,12 +300,6 @@ A button instance publishes following events, so you can subcribe to them using 
 |EV_ON_DBLCLICK|Published when the button is double-clicked.|
 |EV_ON_PRESS|Published when the button is long-pressed.|
 |EV_ON_PRESS_END|Published when the button is not long-pressed anymore.|
-
-If you are not using a driver library like [zbutton-gpio](https://github.com/zendiy-mgos/zbutton-gpio), you must notify to the button instance status changes of the physical button. You can do that sending proper events to the button instance.
-|Event||
-|--|--|
-|EV_ON_DOWN|Send this event when the physical button is pushed down.|
-|EV_ON_UP|Send this event when the physical button is released.|
 ### ZenButton.create()
 ```js
 let btn = ZenButton.create(id, cfg);

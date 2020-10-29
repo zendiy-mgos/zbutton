@@ -7,18 +7,29 @@ let ZenButton = {
   _pcget: ffi('int mgos_zbutton_press_counter_get(void *)'),
   _rst: ffi('void mgos_zbutton_reset(void *)'), 
   _cls: ffi('void mgos_zbutton_close(void *)'),
+  _stg: ffi('int mgos_zbutton_state_get(void *)'),
+  _pss: ffi('bool mgos_zbutton_push_state_set(void *, int)'),
   _cfgc: ffi('void *mjs_zbutton_cfg_create(int, int, int, int)'),
-
+  
   THING_TYPE: (8 | ZenThing.TYPE_SENSOR),
 
-  // Event codes.
+  // Event codes
   EV_ON_ANY: 1514294784,
-  EV_ON_DOWN: 1514294785,       // Send this event to the button instance when the phisical button of your devide is pushed down.
-  EV_ON_UP: 1514294786,         // Send this event to the button instance when the phisical button of your devide is released.
+  EV_ON_DOWN: 1514294785,       // not used; for further uses
+  EV_ON_UP: 1514294786,         // not used; for further uses
   EV_ON_CLICK: 1514294787,      // Published when the button is clicked (single-click).
   EV_ON_DBLCLICK: 1514294788,   // Published when the button is bouble-clicked.
   EV_ON_PRESS: 1514294789,      // Published when the button is pressed (long-press).
   EV_ON_PRESS_END: 1514294790,  // Published when the button is not pressed (long-press) anymore.
+
+  // States
+  STATE: {
+    UP: 0,
+    DOWN: 1,
+    FIRST_UP: 2,
+    SECOND_DOWN: 3,
+    PRESSED: 4,
+  },
 
   // ## **`ZenButton.create(id, cfg)`**
   //
@@ -77,5 +88,14 @@ let ZenButton = {
     close: function() {
       ZenButton._cls(this.handle);
     },
+
+    getState: function() {
+      return ZenButton._stg(this.handle);
+    },
+
+    setPushState: function(state) {
+      return ZenButton._pss(this.handle, state);
+    },
+
   },
 };

@@ -55,12 +55,20 @@ struct mgos_zbutton_cfg {
   int debounce_ticks;
 };
 
+enum mgos_zbutton_state {
+  ZBUTTON_STATE_UP,
+  ZBUTTON_STATE_DOWN,
+  ZBUTTON_STATE_FIRST_UP,
+  ZBUTTON_STATE_SECOND_DOWN,
+  ZBUTTON_STATE_PRESSED
+};
+
 #define MGOS_ZBUTTON_EVENT_BASE MGOS_EVENT_BASE('Z', 'B', 'N')
 
 enum mgos_zbutton_event {
   MGOS_EV_ZBUTTON_ON_ANY = MGOS_ZBUTTON_EVENT_BASE,
-  MGOS_EV_ZBUTTON_ON_DOWN,
-  MGOS_EV_ZBUTTON_ON_UP,
+  MGOS_EV_ZBUTTON_ON_DOWN,  //not used; for further uses
+  MGOS_EV_ZBUTTON_ON_UP,    //not used; for further uses
   MGOS_EV_ZBUTTON_ON_CLICK,
   MGOS_EV_ZBUTTON_ON_DBLCLICK,
   MGOS_EV_ZBUTTON_ON_PRESS,
@@ -81,6 +89,11 @@ void mgos_zbutton_reset(struct mgos_zbutton *handle);
 void mgos_zbutton_close(struct mgos_zbutton *handle);
 
 void mgos_zbutton_cfg_get(struct mgos_zbutton *handle, struct mgos_zbutton_cfg *cfg);
+
+enum mgos_zbutton_state mgos_zbutton_state_get(struct mgos_zbutton *handle);
+
+bool mgos_zbutton_push_state_set(struct mgos_zbutton *handle,
+                                 enum mgos_zbutton_state state);
 
 #ifdef __cplusplus
 }
