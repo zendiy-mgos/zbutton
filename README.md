@@ -117,7 +117,7 @@ struct mgos_zbutton {
 ```
 Button handle. You can get a valid handle using `mgos_zbutton_create()`.
 
-|Field||
+|Property||
 |--|--|
 |id|Handle unique ID.|
 |type|Handle type. Fixed value: `MGOS_ZTHING_BUTTON`.|
@@ -273,7 +273,7 @@ Sets the push state of the button. Use this function to set the push state accor
 void mg_zbutton_gpio_button_handler_cb(int pin, void *arg) {
   struct mgos_zbutton *handle = (struct mgos_zbutton *)arg;
   bool gpio_val = mgos_gpio_read(pin);  
-  mgos_zbutton_push_state_set(handle, gpio_val ? ZBUTTON_STATE_DOWN : ZBUTTON_STATE_UP);
+  mgos_zbutton_push_state_set(handle, (gpio_val ? ZBUTTON_STATE_DOWN : ZBUTTON_STATE_UP));
   LOG(LL_INFO, ("Triggering button %s on pin %d ('%s').", gpio_val ? "DOWN" : "UP", pin, handle->id));
 }
 
