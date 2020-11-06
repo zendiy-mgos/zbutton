@@ -1,6 +1,6 @@
 author: ZenDIY
 type: lib
-description: Mongoose-OS library for ZenButtons ecosystem
+description: Mongoose-OS library for ZenButtons ecosystem.
 version: 1.0
 
 sources:
